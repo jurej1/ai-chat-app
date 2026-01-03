@@ -9,12 +9,5 @@ export default $config({
       home: "aws",
     };
   },
-  async run() {
-    const storage = await import("./infra/storage");
-    await import("./infra/api");
-
-    return {
-      MyBucket: storage.bucket.name,
-    };
-  },
+  async run() {},
 });
