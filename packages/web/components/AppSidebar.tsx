@@ -15,7 +15,7 @@ export function AppSidebar() {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       className={cn(
-        " bg-gray-200/30 h-screen flex py-3 px-3 transition-all duration-300 border-r",
+        " bg-gray-200/30 h-screen flex py-3 px-3 transition-all duration-300 border-r flex-col items-start justify-between",
         {
           "w-72": isOpen,
           "w-16 ": !isOpen,
@@ -26,6 +26,7 @@ export function AppSidebar() {
         isHovering={isHovering}
         onClick={() => setIsOpen((prev) => !prev)}
       />
+      <UserTile />
     </div>
   );
 }
@@ -38,7 +39,7 @@ function OpenCloseSidebarButton({
   onClick: () => void;
 }) {
   return (
-    <Button onClick={onClick} className="relative">
+    <Button onClick={onClick}>
       <FiSidebar
         className={cn("transition-opacity duration-200", {
           "opacity-100": isHovering,
@@ -52,5 +53,13 @@ function OpenCloseSidebarButton({
         })}
       />
     </Button>
+  );
+}
+
+function UserTile() {
+  return (
+    <div className="bg-green-900 flex justify-center items-center rounded-full w-10 h-10 text-white">
+      JJ
+    </div>
   );
 }
