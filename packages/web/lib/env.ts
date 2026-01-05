@@ -1,12 +1,14 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  NEXT_PUBLIC_API_URL: z.string().url("NEXT_PUBLIC_API_URL must be a valid URL"),
+  NEXT_PUBLIC_OPENROUTER_API_KEY: z
+    .string()
+    .min(1, "NEXT_PUBLIC_OPENROUTER_API_KEY is required"),
 });
 
 function validateEnv() {
   const parsed = envSchema.safeParse({
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_OPENROUTER_API_KEY: process.env.NEXT_PUBLIC_OPENROUTER_API_KEY,
   });
 
   if (!parsed.success) {

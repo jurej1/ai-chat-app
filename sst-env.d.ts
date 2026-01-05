@@ -13,7 +13,7 @@ declare module "sst" {
       "type": "sst.aws.StaticSite"
       "url": string
     }
-    "GEMINI_API_KEY": {
+    "OPENROUTER_API_KEY": {
       "type": "sst.sst.Secret"
       "value": string
     }

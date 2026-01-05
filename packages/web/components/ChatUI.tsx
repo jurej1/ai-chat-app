@@ -2,79 +2,56 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Message } from "@/components/Message";
-import type { Message as MessageType, ChatRequest } from "@ai-chat-app/core";
+import type { Message as MessageType } from "@ai-chat-app/core";
+import { streamChatResponse } from "@/lib/api";
+import { fetchModels } from "@/lib/models";
+import { useModelSelection } from "@/lib/hooks/useModelSelection";
+import { ModelSelector } from "@/components/ModelSelector";
+import type { OpenRouterModel } from "@/lib/types/openrouter";
 
-interface ChatUIProps {
-  apiUrl: string;
-}
-
-async function* streamChatResponse(
-  apiUrl: string,
-  messages: MessageType[]
-): AsyncGenerator<string, void, unknown> {
-  const response = await fetch(`${apiUrl}/chat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ messages } as ChatRequest),
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  const reader = response.body?.getReader();
-  const decoder = new TextDecoder();
-
-  if (!reader) {
-    throw new Error("Response body is not readable");
-  }
-
-  let buffer = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-
-    // Process complete SSE messages
-    const lines = buffer.split("\n\n");
-    buffer = lines.pop() || ""; // Keep incomplete message in buffer
-
-    for (const line of lines) {
-      if (line.startsWith("data: ")) {
-        const data = JSON.parse(line.slice(6));
-
-        if (data.type === "content") {
-          yield data.content;
-        } else if (data.type === "error") {
-          throw new Error(data.error);
-        } else if (data.type === "done") {
-          return;
-        }
-      }
-    }
-  }
-}
-
-export function ChatUI({ apiUrl }: ChatUIProps) {
+export function ChatUI() {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Model selection state
+  const { selectedModel, setSelectedModel } = useModelSelection();
+  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
+  const [models, setModels] = useState<OpenRouterModel[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [modelsError, setModelsError] = useState<string | null>(null);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Fetch models on mount
+  useEffect(() => {
+    async function loadModels() {
+      try {
+        setIsLoadingModels(true);
+        const { models: fetchedModels, error } = await fetchModels();
+        if (error) {
+          setModelsError(error);
+        } else {
+          setModels(fetchedModels);
+        }
+      } catch (error) {
+        setModelsError("Unexpected error loading models");
+      } finally {
+        setIsLoadingModels(false);
+      }
+    }
+
+    loadModels();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!input.trim() || isStreaming) return;
+    if (!input.trim() || isStreaming || !selectedModel) return;
 
     const userMessage: MessageType = {
       role: "user",
@@ -98,10 +75,10 @@ export function ChatUI({ apiUrl }: ChatUIProps) {
 
     try {
       // Stream response
-      for await (const chunk of streamChatResponse(apiUrl, [
-        ...messages,
-        userMessage,
-      ])) {
+      for await (const chunk of streamChatResponse(
+        [...messages, userMessage],
+        selectedModel.id
+      )) {
         setMessages((prev) => {
           const updated = [...prev];
           const lastMessage = updated[updated.length - 1];
@@ -132,14 +109,66 @@ export function ChatUI({ apiUrl }: ChatUIProps) {
     <div className="flex flex-col h-screen">
       {/* Header */}
       <header className="border-b border-foreground/10 p-4">
-        <h1 className="text-xl font-semibold">AI Chat</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">AI Chat</h1>
+          <button
+            onClick={() => setIsModelSelectorOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 border border-foreground/10 rounded-lg transition-colors text-sm"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+              />
+            </svg>
+            {selectedModel ? (
+              <span className="max-w-[200px] truncate">
+                {selectedModel.name}
+              </span>
+            ) : (
+              <span className="text-foreground/60">Select Model</span>
+            )}
+          </button>
+        </div>
       </header>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-foreground/50">
-            <p>Start a conversation...</p>
+          <div className="flex flex-col items-center justify-center h-full text-foreground/50 gap-3">
+            {!selectedModel ? (
+              <>
+                <svg
+                  className="w-12 h-12"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                  />
+                </svg>
+                <p>Please select a model to start chatting</p>
+                <button
+                  onClick={() => setIsModelSelectorOpen(true)}
+                  className="px-4 py-2 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
+                >
+                  Select Model
+                </button>
+              </>
+            ) : (
+              <p>Start a conversation...</p>
+            )}
           </div>
         ) : (
           <div>
@@ -168,14 +197,37 @@ export function ChatUI({ apiUrl }: ChatUIProps) {
             />
             <button
               type="submit"
-              disabled={!input.trim() || isStreaming}
+              disabled={!input.trim() || isStreaming || !selectedModel}
               className="px-6 py-3 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title={!selectedModel ? "Please select a model first" : undefined}
             >
               {isStreaming ? "Sending..." : "Send"}
             </button>
           </div>
         </form>
       </div>
+
+      {/* Model Selector Modal */}
+      <ModelSelector
+        isOpen={isModelSelectorOpen}
+        onClose={() => setIsModelSelectorOpen(false)}
+        models={models}
+        selectedModelId={selectedModel?.id ?? null}
+        onSelectModel={setSelectedModel}
+        isLoading={isLoadingModels}
+        error={modelsError}
+        onRetry={async () => {
+          setModelsError(null);
+          setIsLoadingModels(true);
+          const { models: fetchedModels, error } = await fetchModels();
+          if (error) {
+            setModelsError(error);
+          } else {
+            setModels(fetchedModels);
+          }
+          setIsLoadingModels(false);
+        }}
+      />
     </div>
   );
 }

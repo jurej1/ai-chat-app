@@ -1,1 +1,1 @@
-export const GEMINI_API_KEY = new sst.Secret("GEMINI_API_KEY");
+export const OPENROUTER_API_KEY = new sst.Secret("OPENROUTER_API_KEY");
