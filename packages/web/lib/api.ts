@@ -3,7 +3,7 @@ import type { Message, ChatRequest } from "@ai-chat-app/core";
 export async function* streamChatResponse(
   messages: Message[]
 ): AsyncGenerator<string, void, unknown> {
-  const apiUrl = "https://qb6ym9p6s4.execute-api.us-east-1.amazonaws.com";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
 
   const response = await fetch(`${apiUrl}/chat`, {
     method: "POST",

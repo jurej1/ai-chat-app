@@ -1,3 +1,5 @@
+import { api } from "../api";
+
 export const webApp = new sst.aws.StaticSite("AiChatWebApp", {
   path: "packages/web",
   dev: {
@@ -6,5 +8,8 @@ export const webApp = new sst.aws.StaticSite("AiChatWebApp", {
   build: {
     output: "out",
     command: "npm run build",
+  },
+  environment: {
+    NEXT_PUBLIC_API_URL: api.url,
   },
 });
