@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { OpenRouterModel, SelectedModel } from "@/lib/types/openrouter";
-import { Switch } from "./ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
+import { Switch } from "../ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { Star } from "lucide-react";
 import { useSavedModels } from "@/lib/hooks/useSavedModels";
 

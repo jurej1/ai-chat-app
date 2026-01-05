@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { useModelSelection } from "@/lib/hooks/useModelSelection";
 import { useChat } from "@/lib/hooks/useChat";
-import { ModelSelector } from "@/components/ModelSelector";
+import { ModelSelector } from "@/components/model-selector/ModelSelector";
 import { useModels } from "@/lib/hooks/useModels";
 import { ChatHeader } from "./ChatHeader";
 import { ChatMessages } from "./ChatMessages";
@@ -27,8 +27,14 @@ export function ChatUI() {
   } = useModels();
 
   // Chat state
-  const { messages, input, setInput, isStreaming, handleSubmit, cancelStreaming } =
-    useChat(selectedModel);
+  const {
+    messages,
+    input,
+    setInput,
+    isStreaming,
+    handleSubmit,
+    cancelStreaming,
+  } = useChat(selectedModel);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
