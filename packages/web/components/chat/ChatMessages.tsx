@@ -1,4 +1,4 @@
-import { RefObject, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { SelectedModel } from "@/lib/types/openrouter";
 import { Message as MessageType } from "@ai-chat-app/core";
 import { ChatMessage } from "./ChatMessage";
@@ -9,7 +9,6 @@ type Props = {
   onClick: () => void;
   messages: MessageType[];
   selectedModel: SelectedModel | null;
-  messagesEndRef: RefObject<HTMLDivElement | null>;
 };
 
 const placeholderTexts = [
@@ -23,12 +22,7 @@ const placeholderTexts = [
   "What's your question?",
 ];
 
-export function ChatMessages({
-  onClick,
-  messages,
-  selectedModel,
-  messagesEndRef,
-}: Props) {
+export function ChatMessages({ onClick, messages, selectedModel }: Props) {
   const [currentText, setCurrentText] = useState("");
 
   useEffect(() => {
@@ -54,7 +48,6 @@ export function ChatMessages({
               message={message}
             />
           ))}
-          <div ref={messagesEndRef} />
         </div>
       )}
     </div>

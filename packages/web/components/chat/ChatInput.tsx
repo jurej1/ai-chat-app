@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 type Props = {
@@ -87,7 +86,7 @@ export const ChatInput = memo(function ChatInput({
               onKeyDown={handleOnKeyDown}
               placeholder="Type your message..."
               disabled={isStreaming}
-              className="pl-12 pr-4 py-3 bg-foreground/5 border border-foreground/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-foreground/20 disabled:opacity-50 resize-none overflow-y-auto max-h-[300px]"
+              className="pl-12 pr-4 py-3 bg-foreground/5 border border-foreground/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-foreground/20 disabled:opacity-50 resize-none overflow-y-auto max-h-75"
               rows={1}
             />
             <button
