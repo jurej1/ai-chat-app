@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { streamChatResponse } from "@/lib/api";
+import {
+  callOpenRouterModel,
+  streamTextFromResult,
+  getResponseFromResult,
+} from "@/lib/api";
 import type { Message as MessageType } from "@ai-chat-app/core";
 import type { SelectedModel } from "@/lib/types/openrouter";
+import { OpenResponsesUsage } from "@openrouter/sdk/models";
 
 export function useChat(
   selectedModel: SelectedModel | null,
@@ -12,6 +17,7 @@ export function useChat(
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentController, setCurrentController] =
     useState<AbortController | null>(null);
+  const [usage, setUsage] = useState<OpenResponsesUsage | undefined>(undefined);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,13 +50,22 @@ export function useChat(
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
-      // Stream response
-      for await (const chunk of streamChatResponse(
+      // Get the result
+      const result = callOpenRouterModel(
         [...messages, userMessage],
         selectedModel.id,
         controller.signal,
         customInstructions
-      )) {
+      );
+
+      // Stream response
+      const iterator = streamTextFromResult(result)[Symbol.asyncIterator]();
+
+      while (true) {
+        const { value, done } = await iterator.next();
+        if (done) {
+          break;
+        }
         setMessages((prev) => {
           const updated = [...prev];
           const lastMessage = updated[updated.length - 1];
@@ -58,11 +73,18 @@ export function useChat(
             // Create new message object to avoid mutation
             updated[updated.length - 1] = {
               ...lastMessage,
-              content: lastMessage.content + chunk,
+              content: lastMessage.content + value,
             };
           }
           return updated;
         });
+      }
+
+      // Get the full response
+      const fullResponse = await getResponseFromResult(result);
+      if (fullResponse) {
+        console.log("full response", fullResponse);
+        setUsage(fullResponse.usage);
       }
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
@@ -94,5 +116,6 @@ export function useChat(
     isStreaming,
     handleSubmit,
     cancelStreaming: () => currentController?.abort(),
+    usage,
   };
 }

@@ -1,6 +1,7 @@
 import { OpenRouter } from "@openrouter/sdk";
 import { env } from "./env";
 import type { Message } from "@ai-chat-app/core";
+import { OpenResponsesNonStreamingResponse } from "@openrouter/sdk/models";
 
 const apiKey =
   typeof window !== "undefined" && localStorage.getItem("openrouter_api_key")
@@ -11,13 +12,13 @@ const openrouter = new OpenRouter({
   apiKey: apiKey,
 });
 
-export async function* streamChatResponse(
+export function callOpenRouterModel(
   messages: Message[],
   model: string,
   signal?: AbortSignal,
   instructions?: string
-): AsyncGenerator<string, void, unknown> {
-  const result = openrouter.callModel(
+) {
+  return openrouter.callModel(
     {
       model,
       input: messages[messages.length - 1].content,
@@ -25,15 +26,40 @@ export async function* streamChatResponse(
     },
     { signal }
   );
+}
+
+export async function* streamTextFromResult(
+  result: any
+): AsyncGenerator<string, void, unknown> {
+  for await (const delta of result.getTextStream()) {
+    yield delta;
+  }
+}
+
+export async function getResponseFromResult(
+  result: any
+): Promise<OpenResponsesNonStreamingResponse | undefined> {
+  return await result.getResponse();
+}
+
+export async function* streamChatResponse(
+  messages: Message[],
+  model: string,
+  signal?: AbortSignal,
+  instructions?: string
+): AsyncGenerator<
+  string,
+  OpenResponsesNonStreamingResponse | undefined,
+  unknown
+> {
+  const result = callOpenRouterModel(messages, model, signal, instructions);
 
   try {
-    for await (const delta of result.getTextStream()) {
+    for await (const delta of streamTextFromResult(result)) {
       yield delta;
     }
 
-    const response = await result.getResponse();
-
-    console.log("full response", response);
+    return await getResponseFromResult(result);
   } catch (error) {
     const isDomException = error instanceof DOMException;
 

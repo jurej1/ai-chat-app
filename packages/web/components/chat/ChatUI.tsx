@@ -8,6 +8,7 @@ import { useModels } from "@/lib/hooks/useModels";
 import { ChatHeader } from "./ChatHeader";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
+import { ChatUsageBox } from "./ChatUsageBox";
 
 export function ChatUI() {
   const [customInstructions, setCustomInstructions] = useState<string>("");
@@ -34,15 +35,22 @@ export function ChatUI() {
     isStreaming,
     handleSubmit,
     cancelStreaming,
+    usage,
   } = useChat(selectedModel, customInstructions);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen relative">
       {/* Header */}
       <ChatHeader
         onClick={() => setIsModelSelectorOpen(true)}
         selectedModel={selectedModel}
       />
+
+      {usage && (
+        <div className="absolute left-1/2 -translate-x-1/2 top-20">
+          <ChatUsageBox usage={usage!} />
+        </div>
+      )}
 
       {/* Messages */}
       <ChatMessages
