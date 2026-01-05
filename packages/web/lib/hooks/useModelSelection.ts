@@ -9,6 +9,8 @@ export function useModelSelection() {
   );
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
+
   // Load from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(SELECTED_MODEL_KEY);
@@ -38,5 +40,7 @@ export function useModelSelection() {
     selectedModel,
     setSelectedModel,
     isLoaded,
+    isModelSelectorOpen,
+    setIsModelSelectorOpen,
   };
 }

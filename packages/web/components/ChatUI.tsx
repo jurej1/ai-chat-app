@@ -1,109 +1,37 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Message } from "@/components/Message";
-import type { Message as MessageType } from "@ai-chat-app/core";
-import { streamChatResponse } from "@/lib/api";
-import { fetchModels } from "@/lib/models";
 import { useModelSelection } from "@/lib/hooks/useModelSelection";
+import { useChat } from "@/lib/hooks/useChat";
 import { ModelSelector } from "@/components/ModelSelector";
-import type { OpenRouterModel } from "@/lib/types/openrouter";
+import { useModels } from "@/lib/hooks/useModels";
 
 export function ChatUI() {
-  const [messages, setMessages] = useState<MessageType[]>([]);
-  const [input, setInput] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Model selection state
-  const { selectedModel, setSelectedModel } = useModelSelection();
-  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
-  const [models, setModels] = useState<OpenRouterModel[]>([]);
-  const [isLoadingModels, setIsLoadingModels] = useState(false);
-  const [modelsError, setModelsError] = useState<string | null>(null);
+  const {
+    selectedModel,
+    setSelectedModel,
+    setIsModelSelectorOpen,
+    isModelSelectorOpen,
+  } = useModelSelection();
+
+  const {
+    models,
+    isLoading: isLoadingModels,
+    error: modelsError,
+    loadModels,
+  } = useModels();
+
+  // Chat state
+  const { messages, input, setInput, isStreaming, handleSubmit } =
+    useChat(selectedModel);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  // Fetch models on mount
-  useEffect(() => {
-    async function loadModels() {
-      try {
-        setIsLoadingModels(true);
-        const { models: fetchedModels, error } = await fetchModels();
-        if (error) {
-          setModelsError(error);
-        } else {
-          setModels(fetchedModels);
-        }
-      } catch (error) {
-        setModelsError("Unexpected error loading models");
-      } finally {
-        setIsLoadingModels(false);
-      }
-    }
-
-    loadModels();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!input.trim() || isStreaming || !selectedModel) return;
-
-    const userMessage: MessageType = {
-      role: "user",
-      content: input.trim(),
-      timestamp: Date.now(),
-    };
-
-    // Add user message
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsStreaming(true);
-
-    // Create assistant message placeholder
-    const assistantMessage: MessageType = {
-      role: "assistant",
-      content: "",
-      timestamp: Date.now(),
-    };
-
-    setMessages((prev) => [...prev, assistantMessage]);
-
-    try {
-      // Stream response
-      for await (const chunk of streamChatResponse(
-        [...messages, userMessage],
-        selectedModel.id
-      )) {
-        setMessages((prev) => {
-          const updated = [...prev];
-          const lastMessage = updated[updated.length - 1];
-          if (lastMessage.role === "assistant") {
-            lastMessage.content += chunk;
-          }
-          return updated;
-        });
-      }
-    } catch (error) {
-      console.error("Error streaming response:", error);
-      setMessages((prev) => {
-        const updated = [...prev];
-        const lastMessage = updated[updated.length - 1];
-        if (lastMessage.role === "assistant") {
-          lastMessage.content = `Error: ${
-            error instanceof Error ? error.message : "Unknown error occurred"
-          }`;
-        }
-        return updated;
-      });
-    } finally {
-      setIsStreaming(false);
-    }
-  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -129,9 +57,7 @@ export function ChatUI() {
               />
             </svg>
             {selectedModel ? (
-              <span className="max-w-[200px] truncate">
-                {selectedModel.name}
-              </span>
+              <span className="max-w-50 truncate">{selectedModel.name}</span>
             ) : (
               <span className="text-foreground/60">Select Model</span>
             )}
@@ -216,17 +142,7 @@ export function ChatUI() {
         onSelectModel={setSelectedModel}
         isLoading={isLoadingModels}
         error={modelsError}
-        onRetry={async () => {
-          setModelsError(null);
-          setIsLoadingModels(true);
-          const { models: fetchedModels, error } = await fetchModels();
-          if (error) {
-            setModelsError(error);
-          } else {
-            setModels(fetchedModels);
-          }
-          setIsLoadingModels(false);
-        }}
+        onRetry={loadModels}
       />
     </div>
   );

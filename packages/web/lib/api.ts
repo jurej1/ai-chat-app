@@ -11,22 +11,16 @@ export async function* streamChatResponse(
   model: string
 ): AsyncGenerator<string, void, unknown> {
   try {
-    const stream = await openrouter.chat.send({
+    const result = openrouter.callModel({
       model,
-      messages: messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      stream: true,
+      input: messages[messages.length - 1].content,
     });
 
-    for await (const chunk of stream) {
-      const content = chunk.choices?.[0]?.delta?.content;
-      if (content) {
-        yield content;
-      }
+    for await (const delta of result.getTextStream()) {
+      yield delta;
     }
   } catch (error) {
+    console.error("Stream error:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to stream chat response"
     );
