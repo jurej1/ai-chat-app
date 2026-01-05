@@ -189,6 +189,7 @@ export function ModelSelector({
           showFreeOnly={showFreeOnly}
           setShowFreeOnly={setShowFreeOnly}
         />
+
         <ModelSelectorInput
           ref={searchInputRef}
           searchQuery={searchQuery}

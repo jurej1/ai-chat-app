@@ -2,7 +2,7 @@ import { TabsList, TabsTrigger } from "../ui/tabs";
 
 export function ModelSelectorTabsList() {
   return (
-    <div className="px-4 border-b border-foreground/10">
+    <div className="px-4 border-b border-foreground/10 pb-3">
       <TabsList className="w-full">
         <TabsTrigger value="default" className="flex-1">
           Default
