@@ -3,4 +3,8 @@ export const webApp = new sst.aws.StaticSite("AiChatWebApp", {
   dev: {
     command: "npm run dev",
   },
+  build: {
+    output: "out",
+    command: "npm run build",
+  },
 });

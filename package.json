@@ -11,6 +11,11 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@google/genai": "^1.34.0",
+    "@middy/core": "^7.0.0",
+    "@middy/http-cors": "^7.0.0",
+    "@middy/http-json-body-parser": "^7.0.0",
+    "@types/aws-lambda": "^8.10.159",
     "sst": "^3"
   }
 }

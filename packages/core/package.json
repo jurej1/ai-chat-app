@@ -5,16 +5,12 @@
   "scripts": {
     "test": "sst shell vitest"
   },
-  "exports": {
-    "./*": [
-      "./src/*/index.ts",
-      "./src/*.ts"
-    ]
-  },
+  "exports": "./src/index.ts",
   "dependencies": {
+    "@google/genai": "^1.34.0",
     "sst": "*"
   },
   "devDependencies": {
-    "vitest": "^2"
+    "vitest": "^4.0.16"
   }
 }
