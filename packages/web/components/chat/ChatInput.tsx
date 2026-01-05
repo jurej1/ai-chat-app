@@ -1,4 +1,6 @@
+import React, { memo } from "react";
 import { SelectedModel } from "@/lib/types/openrouter";
+import { Input } from "@/components/ui/input";
 
 type Props = {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
@@ -9,7 +11,7 @@ type Props = {
   cancelStreaming: () => void;
 };
 
-export function ChatInput({
+export const ChatInput = memo(function ChatInput({
   handleSubmit,
   input,
   setInput,
@@ -21,8 +23,7 @@ export function ChatInput({
     <div className="border-t border-foreground/10 p-4">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="flex gap-2">
-          <input
-            type="text"
+          <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
@@ -51,4 +52,4 @@ export function ChatInput({
       </form>
     </div>
   );
-}
+});
