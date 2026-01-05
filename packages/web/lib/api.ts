@@ -2,8 +2,13 @@ import { OpenRouter } from "@openrouter/sdk";
 import { env } from "./env";
 import type { Message } from "@ai-chat-app/core";
 
+const apiKey =
+  typeof window !== "undefined" && localStorage.getItem("openrouter_api_key")
+    ? localStorage.getItem("openrouter_api_key")!
+    : env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+
 const openrouter = new OpenRouter({
-  apiKey: env.NEXT_PUBLIC_OPENROUTER_API_KEY,
+  apiKey: apiKey,
 });
 
 export async function* streamChatResponse(
