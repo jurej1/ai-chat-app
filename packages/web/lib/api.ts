@@ -1,9 +1,10 @@
 import type { Message, ChatRequest } from "@ai-chat-app/core";
+import { env } from "./env";
 
 export async function* streamChatResponse(
   messages: Message[]
 ): AsyncGenerator<string, void, unknown> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+  const apiUrl = env.NEXT_PUBLIC_API_URL;
 
   const response = await fetch(`${apiUrl}/chat`, {
     method: "POST",
