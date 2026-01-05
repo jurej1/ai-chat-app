@@ -22,20 +22,35 @@ export function AppSidebar() {
         }
       )}
     >
-      <Button onClick={() => setIsOpen((prev) => !prev)} className="relative">
-        <FiSidebar
-          className={cn("transition-opacity duration-200", {
-            "opacity-100": isHovering,
-            "opacity-0": !isHovering,
-          })}
-        />
-        <HiOutlineCpuChip
-          className={cn("absolute  transition-opacity duration-200", {
-            "opacity-0": isHovering,
-            "opacity-100": !isHovering,
-          })}
-        />
-      </Button>
+      <OpenCloseSidebarButton
+        isHovering={isHovering}
+        onClick={() => setIsOpen((prev) => !prev)}
+      />
     </div>
+  );
+}
+
+function OpenCloseSidebarButton({
+  isHovering,
+  onClick,
+}: {
+  isHovering: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button onClick={onClick} className="relative">
+      <FiSidebar
+        className={cn("transition-opacity duration-200", {
+          "opacity-100": isHovering,
+          "opacity-0": !isHovering,
+        })}
+      />
+      <HiOutlineCpuChip
+        className={cn("absolute  transition-opacity duration-200", {
+          "opacity-0": isHovering,
+          "opacity-100": !isHovering,
+        })}
+      />
+    </Button>
   );
 }
