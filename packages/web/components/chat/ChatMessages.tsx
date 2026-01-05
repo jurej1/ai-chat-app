@@ -1,7 +1,9 @@
-import { RefObject } from "react";
+import { RefObject, useState, useEffect } from "react";
 import { SelectedModel } from "@/lib/types/openrouter";
 import { Message as MessageType } from "@ai-chat-app/core";
 import { ChatMessage } from "./ChatMessage";
+import { HiOutlineCpuChip } from "react-icons/hi2";
+import { Button } from "../ui/button";
 
 type Props = {
   onClick: () => void;
@@ -10,41 +12,38 @@ type Props = {
   messagesEndRef: RefObject<HTMLDivElement | null>;
 };
 
+const placeholderTexts = [
+  "Start a conversation...",
+  "Ready when you are.",
+  "Where should we begin?",
+  "What's on your mind today?",
+  "Let's chat!",
+  "How can I help you?",
+  "Tell me something interesting.",
+  "What's your question?",
+];
+
 export function ChatMessages({
   onClick,
   messages,
   selectedModel,
   messagesEndRef,
 }: Props) {
+  const [currentText, setCurrentText] = useState("");
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * placeholderTexts.length);
+    setCurrentText(placeholderTexts[randomIndex]);
+  }, []);
+
   return (
     <div className="flex-1 overflow-y-auto">
       {messages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-foreground/50 gap-3">
           {!selectedModel ? (
-            <>
-              <svg
-                className="w-12 h-12"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-                />
-              </svg>
-              <p>Please select a model to start chatting</p>
-              <button
-                onClick={onClick}
-                className="px-4 py-2 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
-              >
-                Select Model
-              </button>
-            </>
+            <NoModalSelected onClick={onClick} />
           ) : (
-            <p>Start a conversation...</p>
+            <p>{currentText}</p>
           )}
         </div>
       ) : (
@@ -59,5 +58,20 @@ export function ChatMessages({
         </div>
       )}
     </div>
+  );
+}
+
+function NoModalSelected({ onClick }: { onClick: () => void }) {
+  return (
+    <>
+      <HiOutlineCpuChip className="object-fill w-14 h-14" />
+      <p>Please select a model to start chatting</p>
+      <Button
+        onClick={onClick}
+        className="px-4 py-2 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
+      >
+        Select Model
+      </Button>
+    </>
   );
 }
