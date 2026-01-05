@@ -43,7 +43,7 @@ export function ChatMessages({
           {!selectedModel ? (
             <NoModalSelected onClick={onClick} />
           ) : (
-            <p>{currentText}</p>
+            <p className="text-2xl">{currentText}</p>
           )}
         </div>
       ) : (
