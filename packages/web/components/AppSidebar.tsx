@@ -4,16 +4,18 @@ import { FiSidebar } from "react-icons/fi";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { HiOutlineCpuChip } from "react-icons/hi2";
+import { HiOutlineCpuChip, HiOutlineCog } from "react-icons/hi2";
+import { ApiKeyDialog } from "./settings/ApiKeyDialog";
 
 export function AppSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <div
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      // onMouseEnter={() => setIsHovering(true)}
+      // onMouseLeave={() => setIsHovering(false)}
       className={cn(
         " bg-gray-200/30 h-screen flex py-3 px-3 transition-all duration-300 border-r flex-col items-start justify-between",
         {
@@ -24,9 +26,16 @@ export function AppSidebar() {
     >
       <OpenCloseSidebarButton
         isHovering={isHovering}
-        onClick={() => setIsOpen((prev) => !prev)}
+        // onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {}}
       />
-      <UserTile />
+      <div className="flex flex-col gap-2">
+        <Button onClick={() => setDialogOpen(true)}>
+          <HiOutlineCog />
+        </Button>
+        <UserTile />
+      </div>
+      <ApiKeyDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }

@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { SelectedModel } from "@/lib/types/openrouter";
 import { Button } from "../ui/button";
-import { ApiKeyDialog } from "../settings/ApiKeyDialog";
-import { HiOutlineCpuChip, HiOutlineCog } from "react-icons/hi2";
+import { HiOutlineCpuChip } from "react-icons/hi2";
 
 type Props = {
   onClick: () => void;
@@ -10,7 +8,6 @@ type Props = {
 };
 
 export function ChatHeader({ onClick, selectedModel }: Props) {
-  const [dialogOpen, setDialogOpen] = useState(false);
   return (
     <>
       <header className="border-b border-foreground/10 p-4">
@@ -28,16 +25,9 @@ export function ChatHeader({ onClick, selectedModel }: Props) {
                 <span className="text-foreground/60">Select Model</span>
               )}
             </Button>
-            <Button
-              onClick={() => setDialogOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 border border-foreground/10 rounded-lg transition-colors text-sm text-foreground"
-            >
-              <HiOutlineCog />
-            </Button>
           </div>
         </div>
       </header>
-      <ApiKeyDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 }
