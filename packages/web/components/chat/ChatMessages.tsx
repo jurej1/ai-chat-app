@@ -1,7 +1,7 @@
 import { RefObject } from "react";
 import { SelectedModel } from "@/lib/types/openrouter";
 import { Message as MessageType } from "@ai-chat-app/core";
-import { Message } from "../Message";
+import { ChatMessage } from "./ChatMessage";
 
 type Props = {
   onClick: () => void;
@@ -50,7 +50,10 @@ export function ChatMessages({
       ) : (
         <div>
           {messages.map((message, index) => (
-            <Message key={`${message.timestamp}-${index}`} message={message} />
+            <ChatMessage
+              key={`${message.timestamp}-${index}`}
+              message={message}
+            />
           ))}
           <div ref={messagesEndRef} />
         </div>
