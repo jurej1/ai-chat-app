@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useModelSelection } from "@/lib/hooks/useModelSelection";
 import { useChat } from "@/lib/hooks/useChat";
 import { ModelSelector } from "@/components/model-selector/ModelSelector";
@@ -11,6 +11,7 @@ import { ChatInput } from "./ChatInput";
 
 export function ChatUI() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [customInstructions, setCustomInstructions] = useState<string>("");
 
   const {
     selectedModel,
@@ -34,7 +35,7 @@ export function ChatUI() {
     isStreaming,
     handleSubmit,
     cancelStreaming,
-  } = useChat(selectedModel);
+  } = useChat(selectedModel, customInstructions);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -65,6 +66,8 @@ export function ChatUI() {
         selectedModel={selectedModel}
         setInput={setInput}
         cancelStreaming={cancelStreaming}
+        customInstructions={customInstructions}
+        setCustomInstructions={setCustomInstructions}
       />
 
       {/* Model Selector Modal */}

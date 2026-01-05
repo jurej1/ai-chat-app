@@ -3,7 +3,10 @@ import { streamChatResponse } from "@/lib/api";
 import type { Message as MessageType } from "@ai-chat-app/core";
 import type { SelectedModel } from "@/lib/types/openrouter";
 
-export function useChat(selectedModel: SelectedModel | null) {
+export function useChat(
+  selectedModel: SelectedModel | null,
+  customInstructions?: string
+) {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -45,7 +48,8 @@ export function useChat(selectedModel: SelectedModel | null) {
       for await (const chunk of streamChatResponse(
         [...messages, userMessage],
         selectedModel.id,
-        controller.signal
+        controller.signal,
+        customInstructions
       )) {
         setMessages((prev) => {
           const updated = [...prev];

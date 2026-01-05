@@ -1,7 +1,15 @@
-import React, { memo, useRef, useEffect } from "react";
+import React, { memo, useRef, useEffect, useState } from "react";
 import { SelectedModel } from "@/lib/types/openrouter";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "../ui/button";
+import { Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type Props = {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
@@ -10,6 +18,8 @@ type Props = {
   isStreaming: boolean;
   selectedModel: SelectedModel | null;
   cancelStreaming: () => void;
+  customInstructions: string;
+  setCustomInstructions: (val: string) => void;
 };
 
 export const ChatInput = memo(function ChatInput({
@@ -19,9 +29,12 @@ export const ChatInput = memo(function ChatInput({
   isStreaming,
   selectedModel,
   cancelStreaming,
+  customInstructions,
+  setCustomInstructions,
 }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -66,19 +79,48 @@ export const ChatInput = memo(function ChatInput({
     <div className="border-t border-foreground/10 p-4">
       <form ref={formRef} onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="flex gap-2 items-center">
-          <Textarea
-            ref={textareaRef}
-            value={input}
-            onChange={handleOnChange}
-            onKeyDown={handleOnKeyDown}
-            placeholder="Type your message..."
-            disabled={isStreaming}
-            className="flex-1 px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-foreground/20 disabled:opacity-50 resize-none overflow-hidden"
-            rows={1}
-          />
+          <div className="relative flex-1">
+            <Textarea
+              ref={textareaRef}
+              value={input}
+              onChange={handleOnChange}
+              onKeyDown={handleOnKeyDown}
+              placeholder="Type your message..."
+              disabled={isStreaming}
+              className="pl-12 pr-4 py-3 bg-foreground/5 border border-foreground/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-foreground/20 disabled:opacity-50 resize-none overflow-hidden"
+              rows={1}
+            />
+            <button
+              type="button"
+              onClick={() => setIsDialogOpen(true)}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 p-1 rounded hover:bg-foreground/10 transition-colors"
+              title="Set custom instructions"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
           {isStreaming ? <CancelButton /> : <SubmitButton />}
         </div>
       </form>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Custom Instructions</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            value={customInstructions}
+            onChange={(e) => setCustomInstructions(e.target.value)}
+            placeholder="Enter custom instructions for the AI..."
+            rows={4}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setIsDialogOpen(false)}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 });

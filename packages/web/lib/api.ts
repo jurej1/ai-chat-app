@@ -14,12 +14,14 @@ const openrouter = new OpenRouter({
 export async function* streamChatResponse(
   messages: Message[],
   model: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  instructions?: string
 ): AsyncGenerator<string, void, unknown> {
   const result = openrouter.callModel(
     {
       model,
       input: messages[messages.length - 1].content,
+      ...(instructions && { instructions }),
     },
     { signal }
   );

@@ -6,7 +6,7 @@ export default function ChatPage() {
     <div className="flex">
       <AppSidebar />
       <div className="grow">
-        <ChatUI />;
+        <ChatUI />
       </div>
     </div>
   );
