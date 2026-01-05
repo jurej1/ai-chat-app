@@ -13,8 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Chat - Gemini 2.0 Flash",
-  description: "ChatGPT-like interface powered by Google Gemini",
+  title: "AI Chat",
 };
 
 export default function RootLayout({
