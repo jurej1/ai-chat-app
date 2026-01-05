@@ -27,7 +27,7 @@ export function ChatUI() {
   } = useModels();
 
   // Chat state
-  const { messages, input, setInput, isStreaming, handleSubmit } =
+  const { messages, input, setInput, isStreaming, handleSubmit, cancelStreaming } =
     useChat(selectedModel);
 
   // Auto-scroll to bottom when messages change
@@ -58,6 +58,7 @@ export function ChatUI() {
         isStreaming={isStreaming}
         selectedModel={selectedModel}
         setInput={setInput}
+        cancelStreaming={cancelStreaming}
       />
 
       {/* Model Selector Modal */}

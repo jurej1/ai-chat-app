@@ -7,11 +7,18 @@ export function useChat(selectedModel: SelectedModel | null) {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [currentController, setCurrentController] =
+    useState<AbortController | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!input.trim() || isStreaming || !selectedModel) return;
+
+    if (currentController) currentController.abort();
+
+    const controller = new AbortController();
+    setCurrentController(controller);
 
     const userMessage: MessageType = {
       role: "user",
@@ -37,7 +44,8 @@ export function useChat(selectedModel: SelectedModel | null) {
       // Stream response
       for await (const chunk of streamChatResponse(
         [...messages, userMessage],
-        selectedModel.id
+        selectedModel.id,
+        controller.signal
       )) {
         setMessages((prev) => {
           const updated = [...prev];
@@ -53,21 +61,34 @@ export function useChat(selectedModel: SelectedModel | null) {
         });
       }
     } catch (error) {
-      console.error("Error streaming response:", error);
-      setMessages((prev) => {
-        const updated = [...prev];
-        const lastMessage = updated[updated.length - 1];
-        if (lastMessage.role === "assistant") {
-          lastMessage.content = `Error: ${
-            error instanceof Error ? error.message : "Unknown error occurred"
-          }`;
-        }
-        return updated;
-      });
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setIsStreaming(false);
+        setCurrentController(null);
+      } else {
+        console.error("Error streaming response:", error);
+        setMessages((prev) => {
+          const updated = [...prev];
+          const lastMessage = updated[updated.length - 1];
+          if (lastMessage.role === "assistant") {
+            lastMessage.content = `Error: ${
+              error instanceof Error ? error.message : "Unknown error occurred"
+            }`;
+          }
+          return updated;
+        });
+      }
     } finally {
       setIsStreaming(false);
+      setCurrentController(null);
     }
   };
 
-  return { messages, input, setInput, isStreaming, handleSubmit };
+  return {
+    messages,
+    input,
+    setInput,
+    isStreaming,
+    handleSubmit,
+    cancelStreaming: () => currentController?.abort(),
+  };
 }

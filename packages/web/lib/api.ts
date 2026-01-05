@@ -8,18 +8,31 @@ const openrouter = new OpenRouter({
 
 export async function* streamChatResponse(
   messages: Message[],
-  model: string
+  model: string,
+  signal?: AbortSignal
 ): AsyncGenerator<string, void, unknown> {
-  try {
-    const result = openrouter.callModel({
+  const result = openrouter.callModel(
+    {
       model,
       input: messages[messages.length - 1].content,
-    });
+    },
+    { signal }
+  );
 
+  try {
     for await (const delta of result.getTextStream()) {
       yield delta;
     }
   } catch (error) {
+    const isDomException = error instanceof DOMException;
+
+    if (!(isDomException && error.name === "AbortError")) {
+      result.cancel();
+    }
+    if (error instanceof DOMException && error.name === "AbortError") {
+      // Gracefully handle abort without throwing
+      return;
+    }
     console.error("Stream error:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to stream chat response"
