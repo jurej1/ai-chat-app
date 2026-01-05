@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { OpenRouterModel, SelectedModel } from "@/lib/types/openrouter";
 import { Switch } from "./ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface ModelSelectorProps {
   isOpen: boolean;
@@ -100,22 +101,17 @@ export function ModelSelector({
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-background border border-foreground/10 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] flex flex-col"
-        onClick={(e) => e.stopPropagation()}
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        showCloseButton={false}
+        className="p-0 w-full max-w-3xl max-h-[80vh] flex flex-col"
         onKeyDown={handleKeyDown}
       >
         {/* Header */}
-        <div className="p-4 border-b border-foreground/10">
-          <div className="flex justify-between">
-            <h2 className="text-xl font-semibold mb-3">Select Model</h2>
+        <DialogHeader className="flex justify-between items-center p-4 border-b border-foreground/10">
+          <DialogTitle className="text-xl font-semibold flex w-full justify-between">
+            Select Model
             <div className="flex items-center gap-2">
               <span className="text-sm text-foreground/60">Free only</span>
               <Switch
@@ -124,7 +120,9 @@ export function ModelSelector({
                 className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-300"
               />
             </div>
-          </div>
+          </DialogTitle>
+        </DialogHeader>
+        <div className="p-4 border-b border-foreground/10">
           <input
             ref={searchInputRef}
             type="text"
@@ -206,7 +204,7 @@ export function ModelSelector({
             {searchQuery && ` (filtered from ${models.length})`}
           </p>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
