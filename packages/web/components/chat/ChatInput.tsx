@@ -39,8 +39,8 @@ export const ChatInput = memo(function ChatInput({
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height =
-        textareaRef.current.scrollHeight + "px";
+      const newHeight = Math.min(textareaRef.current.scrollHeight, 300);
+      textareaRef.current.style.height = newHeight + "px";
     }
   }, [input]);
 
@@ -87,7 +87,7 @@ export const ChatInput = memo(function ChatInput({
               onKeyDown={handleOnKeyDown}
               placeholder="Type your message..."
               disabled={isStreaming}
-              className="pl-12 pr-4 py-3 bg-foreground/5 border border-foreground/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-foreground/20 disabled:opacity-50 resize-none overflow-hidden"
+              className="pl-12 pr-4 py-3 bg-foreground/5 border border-foreground/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-foreground/20 disabled:opacity-50 resize-none overflow-y-auto max-h-[300px]"
               rows={1}
             />
             <button

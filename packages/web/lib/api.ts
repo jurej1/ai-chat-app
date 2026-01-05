@@ -30,6 +30,10 @@ export async function* streamChatResponse(
     for await (const delta of result.getTextStream()) {
       yield delta;
     }
+
+    const response = await result.getResponse();
+
+    console.log("full response", response);
   } catch (error) {
     const isDomException = error instanceof DOMException;
 
