@@ -131,6 +131,7 @@ function CopyButton({
       })}
     >
       <Button
+        className="cursor-pointer"
         size="icon-sm"
         variant="ghost"
         onClick={handleOnPress}
