@@ -5,10 +5,10 @@ import {
   getResponseFromResult,
 } from "@/lib/api";
 import type { Message as MessageType } from "@ai-chat-app/core";
-import type { SelectedModel } from "@/lib/types/openrouter";
+import type { Model } from "@openrouter/sdk/models";
 
 export function useChat(
-  selectedModel: SelectedModel | null,
+  selectedModel: Model | null,
   customInstructions?: string
 ) {
   const [messages, setMessages] = useState<MessageType[]>([]);

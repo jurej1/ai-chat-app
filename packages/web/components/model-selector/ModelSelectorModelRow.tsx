@@ -1,8 +1,8 @@
-import { OpenRouterModel } from "@/lib/types/openrouter";
+import { Model } from "@openrouter/sdk/models";
 import { Star } from "lucide-react";
 
 type Props = {
-  model: OpenRouterModel;
+  model: Model;
   index: number;
   isActive: boolean;
   focusedIndex: number;
@@ -46,9 +46,9 @@ export function ModelSelectorModelRow({
         </div>
         <div className="shrink-0 flex items-center gap-2">
           <div className="text-right text-sm">
-            {model.context_length && (
+            {model.contextLength && (
               <p className="text-foreground/60">
-                {model.context_length.toLocaleString()} ctx
+                {model.contextLength.toLocaleString()} ctx
               </p>
             )}
             {isSelected && (

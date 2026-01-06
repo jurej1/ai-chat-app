@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import type { OpenRouterModel, SelectedModel } from "@/lib/types/openrouter";
+import type { Model } from "@openrouter/sdk/models";
 import { Dialog, DialogContent } from "../ui/dialog";
 import { Tabs } from "../ui/tabs";
 import { useSavedModels } from "@/lib/hooks/useSavedModels";
@@ -15,9 +15,9 @@ import { ModelSelectorFooter } from "./ModelSelectorFooter";
 interface ModelSelectorProps {
   isOpen: boolean;
   onClose: () => void;
-  models: OpenRouterModel[];
+  models: Model[];
   selectedModelId: string | null;
-  onSelectModel: (model: SelectedModel) => void;
+  onSelectModel: (model: Model) => void;
   isLoading?: boolean;
   error?: string | null;
   onRetry?: () => void;
@@ -163,8 +163,8 @@ export function ModelSelector({
     }
   }, [focusedIndex, isOpen]);
 
-  const handleSelectModel = (model: OpenRouterModel) => {
-    onSelectModel({ id: model.id, name: model.name });
+  const handleSelectModel = (model: Model) => {
+    onSelectModel(model);
     onClose();
   };
 

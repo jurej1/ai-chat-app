@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SelectedModel } from "@/lib/types/openrouter";
+import { Model } from "@openrouter/sdk/models";
 import { Message as MessageType } from "@ai-chat-app/core";
 import { ChatMessage } from "./ChatMessage";
 import { HiOutlineCpuChip } from "react-icons/hi2";
@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 type Props = {
   onClick: () => void;
   messages: MessageType[];
-  selectedModel: SelectedModel | null;
+  selectedModel: Model | null;
 };
 
 const placeholderTexts = [

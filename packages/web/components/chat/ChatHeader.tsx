@@ -1,10 +1,10 @@
-import { SelectedModel } from "@/lib/types/openrouter";
+import { Model } from "@openrouter/sdk/models";
 import { Button } from "../ui/button";
 import { HiOutlineCpuChip } from "react-icons/hi2";
 
 type Props = {
   onClick: () => void;
-  selectedModel: SelectedModel | null;
+  selectedModel: Model | null;
 };
 
 export function ChatHeader({ onClick, selectedModel }: Props) {

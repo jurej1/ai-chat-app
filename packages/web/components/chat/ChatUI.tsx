@@ -49,7 +49,7 @@ export function ChatUI() {
         <div className="absolute left-1/2 -translate-x-1/2 top-20">
           <ChatUsageBox
             messages={messages}
-            contextLength={selectedModel?.context_length}
+            contextLength={selectedModel?.contextLength}
           />
         </div>
       )}

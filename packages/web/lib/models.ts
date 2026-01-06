@@ -1,6 +1,6 @@
 import { OpenRouter } from "@openrouter/sdk";
 import { env } from "./env";
-import type { OpenRouterModel } from "./types/openrouter";
+import { Model } from "@openrouter/sdk/models";
 
 const openrouter = new OpenRouter({
   apiKey: env.NEXT_PUBLIC_OPENROUTER_API_KEY,
@@ -11,12 +11,12 @@ const CACHE_KEY = "openrouter_models_cache";
 const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 
 interface CachedModels {
-  models: OpenRouterModel[];
+  models: Model[];
   timestamp: number;
 }
 
 export async function fetchModels(): Promise<{
-  models: OpenRouterModel[];
+  models: Model[];
   error?: string;
 }> {
   // Check cache first
@@ -26,7 +26,7 @@ export async function fetchModels(): Promise<{
   try {
     // Fetch from API
     const response = await openrouter.models.list();
-    const models = (response as any).data as OpenRouterModel[];
+    const models = response.data;
 
     // Cache the results
     setCachedModels(models);
@@ -41,7 +41,7 @@ export async function fetchModels(): Promise<{
   }
 }
 
-function getCachedModels(): OpenRouterModel[] | null {
+function getCachedModels(): Model[] | null {
   if (typeof window === "undefined") return null;
 
   try {
@@ -63,7 +63,7 @@ function getCachedModels(): OpenRouterModel[] | null {
   }
 }
 
-function setCachedModels(models: OpenRouterModel[]): void {
+function setCachedModels(models: Model[]): void {
   if (typeof window === "undefined") return;
 
   try {

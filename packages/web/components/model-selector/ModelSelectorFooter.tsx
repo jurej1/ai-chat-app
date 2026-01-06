@@ -1,18 +1,18 @@
-import { OpenRouterModel } from "@/lib/types/openrouter";
+import { Model } from "@openrouter/sdk/models";
 
 type SavedModelItem = {
   id: string;
   name: string;
   isAvailable: boolean;
-  fullModel?: OpenRouterModel;
+  fullModel?: Model;
 };
 
 type Props = {
   activeTab: string;
-  filteredDefaultModels: OpenRouterModel[];
+  filteredDefaultModels: Model[];
   filteredSavedModels: SavedModelItem[];
   searchQuery: string;
-  models: OpenRouterModel[];
+  models: Model[];
   totalSavedModelsCount: number;
 };
 

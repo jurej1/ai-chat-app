@@ -1,12 +1,10 @@
+import { Model } from "@openrouter/sdk/models";
 import { useState, useEffect } from "react";
-import type { SelectedModel } from "../types/openrouter";
 
 const SELECTED_MODEL_KEY = "selected_openrouter_model";
 
 export function useModelSelection() {
-  const [selectedModel, setSelectedModelState] = useState<SelectedModel | null>(
-    null
-  );
+  const [selectedModel, setSelectedModelState] = useState<Model | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
@@ -27,7 +25,7 @@ export function useModelSelection() {
   }, []);
 
   // Persist to localStorage when changed
-  const setSelectedModel = (model: SelectedModel | null) => {
+  const setSelectedModel = (model: Model | null) => {
     setSelectedModelState(model);
     if (model) {
       localStorage.setItem(SELECTED_MODEL_KEY, JSON.stringify(model));

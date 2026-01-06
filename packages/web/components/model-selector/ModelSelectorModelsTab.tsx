@@ -1,4 +1,4 @@
-import { OpenRouterModel } from "@/lib/types/openrouter";
+import { Model } from "@openrouter/sdk/models";
 import { TabsContent } from "../ui/tabs";
 import { ModelSelectorModelRow } from "./ModelSelectorModelRow";
 
@@ -6,11 +6,11 @@ type Props = {
   error: string | null;
   onRetry?: () => void;
   isLoading: boolean;
-  filteredDefaultModels: OpenRouterModel[];
+  filteredDefaultModels: Model[];
   searchQuery: string;
   isModelSaved: (id: string) => boolean;
   focusedIndex: number;
-  handleSelectModel: (model: OpenRouterModel) => void;
+  handleSelectModel: (model: Model) => void;
   handleToggleSave: (
     e: React.MouseEvent,
     modelId: string,

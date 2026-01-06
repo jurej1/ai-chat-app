@@ -1,5 +1,5 @@
 import React, { memo, useRef, useEffect, useState } from "react";
-import { SelectedModel } from "@/lib/types/openrouter";
+import { Model } from "@openrouter/sdk/models";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
@@ -15,7 +15,7 @@ type Props = {
   input: string;
   setInput: (val: string) => void;
   isStreaming: boolean;
-  selectedModel: SelectedModel | null;
+  selectedModel: Model | null;
   cancelStreaming: () => void;
   customInstructions: string;
   setCustomInstructions: (val: string) => void;

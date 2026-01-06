@@ -1,4 +1,4 @@
-import { OpenRouterModel } from "@/lib/types/openrouter";
+import { Model } from "@openrouter/sdk/models";
 import { TabsContent } from "../ui/tabs";
 import { Star } from "lucide-react";
 import { ModelSelectorModelRow } from "./ModelSelectorModelRow";
@@ -7,7 +7,7 @@ type SavedModelItem = {
   id: string;
   name: string;
   isAvailable: boolean;
-  fullModel?: OpenRouterModel;
+  fullModel?: Model;
 };
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
   focusedIndex: number;
   selectedModelId: string | null;
   isModelSaved: (id: string) => boolean;
-  handleSelectModel: (model: OpenRouterModel) => void;
+  handleSelectModel: (model: Model) => void;
   handleToggleSave: (
     e: React.MouseEvent,
     modelId: string,
