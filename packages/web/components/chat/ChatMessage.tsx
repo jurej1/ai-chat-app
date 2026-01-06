@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import type { MessageRole, Message as MessageType } from "@ai-chat-app/core";
+import type { MessageRole, Message as MessageType, MessageUsage as MessageUsageType } from "@ai-chat-app/core";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { MdOutlineContentCopy } from "react-icons/md";
@@ -33,7 +33,10 @@ export function ChatMessage({ message }: MessageProps) {
       <div className="flex-1 overflow-hidden flex flex-col">
         <Markdown message={message} />
 
-        <div>
+        <div className="flex items-center gap-2 mt-2">
+          {!isUser && message.usage && (
+            <MessageUsage usage={message.usage} />
+          )}
           {!isUser && (
             <CopyButton isHover={isHovered} content={message.content} />
           )}
@@ -139,6 +142,26 @@ function CopyButton({
       >
         <MdOutlineContentCopy />
       </Button>
+    </div>
+  );
+}
+
+function MessageUsage({ usage }: { usage: MessageUsageType }) {
+  return (
+    <div className="flex items-center gap-2 text-xs text-gray-500">
+      <div className="flex items-center gap-1">
+        <span className="text-gray-400">In:</span>
+        <span className="font-mono tabular-nums">
+          {usage.inputTokens?.toLocaleString() || 0}
+        </span>
+      </div>
+      <span className="text-gray-400">•</span>
+      <div className="flex items-center gap-1">
+        <span className="text-gray-400">Out:</span>
+        <span className="font-mono tabular-nums">
+          {usage.outputTokens?.toLocaleString() || 0}
+        </span>
+      </div>
     </div>
   );
 }

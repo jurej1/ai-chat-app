@@ -35,7 +35,6 @@ export function ChatUI() {
     isStreaming,
     handleSubmit,
     cancelStreaming,
-    usage,
   } = useChat(selectedModel, customInstructions);
 
   return (
@@ -46,9 +45,12 @@ export function ChatUI() {
         selectedModel={selectedModel}
       />
 
-      {usage && (
+      {messages.some((m) => m.usage) && (
         <div className="absolute left-1/2 -translate-x-1/2 top-20">
-          <ChatUsageBox usage={usage!} />
+          <ChatUsageBox
+            messages={messages}
+            contextLength={selectedModel?.context_length}
+          />
         </div>
       )}
 

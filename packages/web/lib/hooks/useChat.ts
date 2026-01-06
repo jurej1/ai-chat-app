@@ -6,7 +6,6 @@ import {
 } from "@/lib/api";
 import type { Message as MessageType } from "@ai-chat-app/core";
 import type { SelectedModel } from "@/lib/types/openrouter";
-import { OpenResponsesUsage } from "@openrouter/sdk/models";
 
 export function useChat(
   selectedModel: SelectedModel | null,
@@ -17,7 +16,6 @@ export function useChat(
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentController, setCurrentController] =
     useState<AbortController | null>(null);
-  const [usage, setUsage] = useState<OpenResponsesUsage | undefined>(undefined);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +82,22 @@ export function useChat(
       const fullResponse = await getResponseFromResult(result);
       if (fullResponse) {
         console.log("full response", fullResponse);
-        setUsage(fullResponse.usage);
+
+        // Attach usage to the assistant message
+        setMessages((prev) => {
+          const updated = [...prev];
+          const lastMessage = updated[updated.length - 1];
+          if (lastMessage.role === "assistant" && fullResponse.usage) {
+            updated[updated.length - 1] = {
+              ...lastMessage,
+              usage: {
+                inputTokens: fullResponse.usage.inputTokens,
+                outputTokens: fullResponse.usage.outputTokens,
+              },
+            };
+          }
+          return updated;
+        });
       }
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
@@ -116,6 +129,5 @@ export function useChat(
     isStreaming,
     handleSubmit,
     cancelStreaming: () => currentController?.abort(),
-    usage,
   };
 }
