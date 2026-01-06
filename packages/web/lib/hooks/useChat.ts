@@ -3,7 +3,7 @@ import {
   callOpenRouterModel,
   streamTextFromResult,
   getResponseFromResult,
-} from "@/lib/api";
+} from "@/lib/openrouter";
 import type { Message as MessageType } from "@ai-chat-app/core";
 import type { Model } from "@openrouter/sdk/models";
 
