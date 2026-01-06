@@ -4,7 +4,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import type { MessageRole, Message as MessageType, MessageUsage as MessageUsageType } from "@ai-chat-app/core";
+import type {
+  MessageRole,
+  Message as MessageType,
+  MessageUsage as MessageUsageType,
+} from "@ai-chat-app/core";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { MdOutlineContentCopy } from "react-icons/md";
@@ -34,10 +38,8 @@ export function ChatMessage({ message }: MessageProps) {
         <Markdown message={message} />
 
         <div className="flex items-center gap-2 mt-2">
-          {!isUser && message.usage && (
-            <MessageUsage usage={message.usage} />
-          )}
-          {!isUser && (
+          {!isUser && message.usage && <MessageUsage usage={message.usage} />}
+          {!isUser && !message.content.startsWith("Error:") && (
             <CopyButton isHover={isHovered} content={message.content} />
           )}
         </div>

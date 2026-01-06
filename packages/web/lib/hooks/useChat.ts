@@ -17,6 +17,19 @@ export function useChat(
   const [currentController, setCurrentController] =
     useState<AbortController | null>(null);
 
+  const handleMessageUpdates = (
+    updater: (lastMessage: MessageType) => MessageType
+  ) => {
+    setMessages((prev) => {
+      const updated = [...prev];
+      const lastMessage = updated[updated.length - 1];
+      if (lastMessage.role === "assistant") {
+        updated[updated.length - 1] = updater(lastMessage);
+      }
+      return updated;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -49,7 +62,7 @@ export function useChat(
 
     try {
       // Get the result
-      const result = callOpenRouterModel(
+      const modelResult = callOpenRouterModel(
         [...messages, userMessage],
         selectedModel.id,
         controller.signal,
@@ -57,65 +70,54 @@ export function useChat(
       );
 
       // Stream response
-      const iterator = streamTextFromResult(result)[Symbol.asyncIterator]();
+      const iterator =
+        streamTextFromResult(modelResult)[Symbol.asyncIterator]();
 
       while (true) {
         const { value, done } = await iterator.next();
-        if (done) {
-          break;
-        }
-        setMessages((prev) => {
-          const updated = [...prev];
-          const lastMessage = updated[updated.length - 1];
-          if (lastMessage.role === "assistant") {
-            // Create new message object to avoid mutation
-            updated[updated.length - 1] = {
-              ...lastMessage,
-              content: lastMessage.content + value,
-            };
-          }
-          return updated;
-        });
+        if (done) break;
+
+        handleMessageUpdates((lastMessage) => ({
+          ...lastMessage,
+          content: lastMessage.content + value,
+        }));
       }
 
       // Get the full response
-      const fullResponse = await getResponseFromResult(result);
+      const fullResponse = await getResponseFromResult(modelResult);
       if (fullResponse) {
         console.log("full response", fullResponse);
 
         // Attach usage to the assistant message
-        setMessages((prev) => {
-          const updated = [...prev];
-          const lastMessage = updated[updated.length - 1];
-          if (lastMessage.role === "assistant" && fullResponse.usage) {
-            updated[updated.length - 1] = {
-              ...lastMessage,
-              usage: {
-                inputTokens: fullResponse.usage.inputTokens,
-                outputTokens: fullResponse.usage.outputTokens,
-              },
-            };
-          }
-          return updated;
-        });
+        if (fullResponse.usage) {
+          handleMessageUpdates((lastMessage) => ({
+            ...lastMessage,
+            usage: {
+              inputTokens: fullResponse.usage!.inputTokens,
+              outputTokens: fullResponse.usage!.outputTokens,
+            },
+          }));
+        }
       }
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
+      const isAbortError =
+        error instanceof DOMException && error.name === "AbortError";
+
+      if (isAbortError) {
         setIsStreaming(false);
         setCurrentController(null);
-      } else {
-        console.error("Error streaming response:", error);
-        setMessages((prev) => {
-          const updated = [...prev];
-          const lastMessage = updated[updated.length - 1];
-          if (lastMessage.role === "assistant") {
-            lastMessage.content = `Error: ${
-              error instanceof Error ? error.message : "Unknown error occurred"
-            }`;
-          }
-          return updated;
-        });
+        return;
       }
+
+      console.error("Error streaming response:", error);
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+
+      handleMessageUpdates((lastMessage) => ({
+        ...lastMessage,
+        content: `Error: ${errorMessage}`,
+      }));
     } finally {
       setIsStreaming(false);
       setCurrentController(null);
