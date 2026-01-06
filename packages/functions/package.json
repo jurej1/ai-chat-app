@@ -4,9 +4,6 @@
   "type": "module",
   "dependencies": {
     "@ai-chat-app/core": "*",
-    "@middy/core": "^6.4.0",
-    "@middy/http-cors": "^6.4.0",
-    "@middy/http-json-body-parser": "^6.4.0",
     "sst": "*"
   },
   "devDependencies": {
