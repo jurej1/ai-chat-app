@@ -3,8 +3,8 @@ import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { messagesTable } from "./messages.sql";
 
 export const chatsTable = pgTable("chats", {
-  id: uuid("id").notNull().primaryKey(),
-  title: text("title").default("Unnamed"),
+  id: uuid("id").notNull().primaryKey().defaultRandom(),
+  title: text("title"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

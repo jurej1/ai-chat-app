@@ -13,6 +13,10 @@ declare module "sst" {
       "type": "sst.aws.StaticSite"
       "url": string
     }
+    "DATABASE_URL": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "OPENROUTER_API_KEY": {
       "type": "sst.sst.Secret"
       "value": string

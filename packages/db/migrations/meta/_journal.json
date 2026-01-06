@@ -15,6 +15,20 @@
       "when": 1767693757806,
       "tag": "0001_fair_toro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767700414540,
+      "tag": "0002_aromatic_stardust",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1767701433216,
+      "tag": "0003_equal_mephistopheles",
+      "breakpoints": true
     }
   ]
 }

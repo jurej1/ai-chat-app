@@ -19,7 +19,7 @@ export const messageRolesEnum = pgEnum("roles", [
 export const messagesTable = pgTable(
   "messages",
   {
-    id: uuid("id").notNull().primaryKey(),
+    id: uuid("id").notNull().primaryKey().defaultRandom(),
     chatId: uuid("chat_id")
       .notNull()
       .references(() => chatsTable.id, { onDelete: "cascade" }),

@@ -1,0 +1,26 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{api}}/messages/new
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "chatId": "45968a39-156d-49f0-a438-738b733a13db",
+    "role": "user",
+    "content": "Hello, how are you?",
+    "inputTokens": 5,
+    "outputTokens": 10
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
