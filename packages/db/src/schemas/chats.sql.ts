@@ -4,7 +4,7 @@ import { messagesTable } from "./messages.sql";
 
 export const chatsTable = pgTable("chats", {
   id: uuid("id").notNull().primaryKey(),
-  title: text("title"),
+  title: text("title").default("Unnamed"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -1,0 +1,1 @@
+ALTER TABLE "chats" ALTER COLUMN "title" SET DEFAULT 'Unnamed';
