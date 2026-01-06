@@ -8,14 +8,19 @@
   "scripts": {},
   "devDependencies": {
     "@tsconfig/node22": "^22",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   },
   "dependencies": {
-    "@openrouter/sdk": "latest",
     "@middy/core": "^7.0.0",
     "@middy/http-cors": "^7.0.0",
     "@middy/http-json-body-parser": "^7.0.0",
+    "@neondatabase/serverless": "^1.0.2",
+    "@openrouter/sdk": "latest",
     "@types/aws-lambda": "^8.10.159",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
     "sst": "^3"
   }
 }

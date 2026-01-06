@@ -1,14 +1,13 @@
 {
-  "name": "@ai-chat-app/functions",
+  "name": "@ai-chat-app/db",
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
     "@ai-chat-app/core": "*",
-    "@ai-chat-app/db": "*",
     "sst": "*"
   },
+  "exports": "./src/index.ts",
   "devDependencies": {
-    "@types/aws-lambda": "^8",
     "@types/node": "^22"
   }
 }
