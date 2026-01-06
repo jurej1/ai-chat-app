@@ -1,4 +1,7 @@
+import { useMemo } from "react";
 import type { Message } from "@ai-chat-app/core";
+
+import { Progress } from "../ui/progress";
 
 interface ChatUsageBoxProps {
   messages: Message[];
@@ -7,15 +10,19 @@ interface ChatUsageBoxProps {
 
 export function ChatUsageBox({ messages, contextLength }: ChatUsageBoxProps) {
   // Calculate total usage across all messages
-  const totalUsage = messages.reduce(
-    (acc, message) => {
-      if (message.usage) {
-        acc.inputTokens += message.usage.inputTokens || 0;
-        acc.outputTokens += message.usage.outputTokens || 0;
-      }
-      return acc;
-    },
-    { inputTokens: 0, outputTokens: 0 }
+  const totalUsage = useMemo(
+    () =>
+      messages.reduce(
+        (acc, message) => {
+          if (message.usage) {
+            acc.inputTokens += message.usage.inputTokens || 0;
+            acc.outputTokens += message.usage.outputTokens || 0;
+          }
+          return acc;
+        },
+        { inputTokens: 0, outputTokens: 0 }
+      ),
+    [messages]
   );
 
   const totalTokens = totalUsage.inputTokens + totalUsage.outputTokens;
@@ -64,14 +71,11 @@ export function ChatUsageBox({ messages, contextLength }: ChatUsageBoxProps) {
       {contextLength && (
         <div className="flex items-center gap-2 text-xs">
           <span className="text-gray-500 whitespace-nowrap">Context:</span>
-          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-300 ${getContextColor(
-                contextUsagePercentage
-              )}`}
-              style={{ width: `${contextUsagePercentage}%` }}
-            />
-          </div>
+          <Progress
+            value={contextUsagePercentage}
+            className="flex-1 bg-gray-200"
+            indicatorClassName={getContextColor(contextUsagePercentage)}
+          />
           <span className="text-gray-600 tabular-nums whitespace-nowrap">
             {inputTokens.toLocaleString()} / {contextLength.toLocaleString()}
             <span className="text-gray-400 ml-1">
