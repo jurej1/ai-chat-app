@@ -1,0 +1,20 @@
+meta {
+  name: Messages by Chat Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{api}}/messages/:chatId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  chatId: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

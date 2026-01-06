@@ -9,8 +9,8 @@ export const commonHttp = () => [
   httpCors(),
   errorLogger(),
   httpErrorHandler(),
-  httpJsonBodyParser(),
   httpContentEncoding(),
+  httpJsonBodyParser({ disableContentTypeError: true }),
   httpResponseSerializer({
     serializers: [
       {

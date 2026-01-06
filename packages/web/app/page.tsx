@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/components/AppSidebar";
+import { AppSidebar } from "@/components/app-sidebar/AppSidebar";
 import { ChatUI } from "@/components/chat/ChatUI";
 
 export default function ChatPage() {

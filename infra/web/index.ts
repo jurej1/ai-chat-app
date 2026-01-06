@@ -1,3 +1,4 @@
+import { api } from "../api";
 import { OPENROUTER_API_KEY } from "../secrets";
 
 export const webApp = new sst.aws.StaticSite("AiChatWebApp", {
@@ -11,5 +12,6 @@ export const webApp = new sst.aws.StaticSite("AiChatWebApp", {
   },
   environment: {
     NEXT_PUBLIC_OPENROUTER_API_KEY: OPENROUTER_API_KEY.value,
+    NEXT_PUBLIC_API_URL: api.url,
   },
 });
