@@ -22,7 +22,7 @@ export function ChatMessage({ message }: MessageProps) {
 
   return (
     <div
-      className={cn("flex gap-4 p-4 items-start", {
+      className={cn("flex gap-4 p-4 items-start pr-12", {
         "bg-transparent": isUser,
         "bg-foreground/5": !isUser,
       })}
