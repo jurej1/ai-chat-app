@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useModelSelection } from "@/lib/hooks/useModelSelection";
 import { useChat } from "@/lib/hooks/useChat";
+import { useChatMessages } from "@/lib/hooks/useChatMessages";
+import { useSelectedChatStore } from "@/lib/store/selectedChatStore";
 import { ModelSelector } from "@/components/model-selector/ModelSelector";
 import { useModels } from "@/lib/hooks/useModels";
 import { ChatHeader } from "./ChatHeader";
@@ -27,7 +29,15 @@ export function ChatUI() {
     loadModels,
   } = useModels();
 
-  // Chat state
+  // Selected chat state
+  const { selectedChat } = useSelectedChatStore();
+
+  // Fetch chat messages if a chat is selected
+  const { data: chatMessages, isLoading: isLoadingMessages } = useChatMessages(
+    selectedChat?.id
+  );
+
+  // Chat state (with history from selected chat)
   const {
     messages,
     input,
@@ -35,7 +45,14 @@ export function ChatUI() {
     isStreaming,
     handleSubmit,
     cancelStreaming,
-  } = useChat(selectedModel, customInstructions);
+  } = useChat(selectedModel, customInstructions, chatMessages);
+
+  // Handle chat switching - abort any ongoing streams when chat changes
+  useEffect(() => {
+    if (isStreaming) {
+      cancelStreaming();
+    }
+  }, [selectedChat?.id]);
 
   return (
     <div className="flex flex-col h-screen relative">
@@ -43,6 +60,7 @@ export function ChatUI() {
       <ChatHeader
         onClick={() => setIsModelSelectorOpen(true)}
         selectedModel={selectedModel}
+        chatTitle={selectedChat?.title ?? null}
       />
 
       {messages.some((m) => m.inputTokens || m.outputTokens) && (
@@ -59,6 +77,7 @@ export function ChatUI() {
         onClick={() => setIsModelSelectorOpen(true)}
         messages={messages}
         selectedModel={selectedModel}
+        isLoading={isLoadingMessages}
       />
 
       {/* Input */}

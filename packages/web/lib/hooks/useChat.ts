@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   callOpenRouterModel,
   streamTextFromResult,
@@ -10,13 +10,22 @@ import { Message } from "@ai-chat-app/db";
 
 export function useChat(
   selectedModel: Model | null,
-  customInstructions?: string
+  customInstructions?: string,
+  initialMessages?: Message[]
 ) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(initialMessages ?? []);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentController, setCurrentController] =
     useState<AbortController | null>(null);
+
+  // Update messages when initialMessages changes (e.g., when switching chats)
+  useEffect(() => {
+    if (initialMessages) {
+      setMessages(initialMessages);
+      setInput(""); // Clear input when loading new chat
+    }
+  }, [initialMessages]);
 
   const handleMessageUpdates = (updater: (lastMessage: Message) => Message) => {
     setMessages((prev) => {
@@ -130,6 +139,16 @@ export function useChat(
     }
   };
 
+  const resetChat = () => {
+    setMessages([]);
+    setInput("");
+    if (currentController) {
+      currentController.abort();
+    }
+    setIsStreaming(false);
+    setCurrentController(null);
+  };
+
   return {
     messages,
     input,
@@ -137,5 +156,6 @@ export function useChat(
     isStreaming,
     handleSubmit,
     cancelStreaming: () => currentController?.abort(),
+    resetChat,
   };
 }

@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { Model } from "@openrouter/sdk/models";
 import { Message as MessageType } from "@ai-chat-app/db";
 import { ChatMessage } from "./ChatMessage";
-import { HiOutlineCpuChip } from "react-icons/hi2";
-import { Button } from "../ui/button";
+import { NoModalSelected } from "./ChatNoModelSelected";
+import { Spinner } from "../ui/spinner";
 
 type Props = {
   onClick: () => void;
   messages: MessageType[];
   selectedModel: Model | null;
+  isLoading?: boolean;
 };
 
 const placeholderTexts = [
@@ -22,7 +23,12 @@ const placeholderTexts = [
   "What's your question?",
 ];
 
-export function ChatMessages({ onClick, messages, selectedModel }: Props) {
+export function ChatMessages({
+  onClick,
+  messages,
+  selectedModel,
+  isLoading = false,
+}: Props) {
   const [currentText, setCurrentText] = useState("");
 
   useEffect(() => {
@@ -32,7 +38,12 @@ export function ChatMessages({ onClick, messages, selectedModel }: Props) {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      {messages.length === 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center h-full text-foreground/50 gap-3">
+          <Spinner />
+          <p className="text-sm">Loading chat history...</p>
+        </div>
+      ) : messages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-foreground/50 gap-3">
           {!selectedModel ? (
             <NoModalSelected onClick={onClick} />
@@ -48,20 +59,5 @@ export function ChatMessages({ onClick, messages, selectedModel }: Props) {
         </div>
       )}
     </div>
-  );
-}
-
-function NoModalSelected({ onClick }: { onClick: () => void }) {
-  return (
-    <>
-      <HiOutlineCpuChip className="object-fill w-14 h-14" />
-      <p>Please select a model to start chatting</p>
-      <Button
-        onClick={onClick}
-        className="px-4 py-2 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
-      >
-        Select Model
-      </Button>
-    </>
   );
 }

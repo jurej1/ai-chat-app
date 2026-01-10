@@ -1,6 +1,6 @@
 import { OpenRouter } from "@openrouter/sdk";
 import { env } from "./env";
-import type { Message } from "@ai-chat-app/core";
+import type { Message } from "@ai-chat-app/db";
 import { OpenResponsesNonStreamingResponse } from "@openrouter/sdk/models";
 
 const apiKey =

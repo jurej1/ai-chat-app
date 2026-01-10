@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { HiOutlineCog } from "react-icons/hi2";
 import { ApiKeyDialog } from "../settings/ApiKeyDialog";
+import { useSelectedChatStore } from "@/lib/store/selectedChatStore";
 
 import { UserTile } from "./UserTile";
 import { OpenCloseSidebarButton } from "./OpenCloseSidebarButton";
@@ -15,6 +16,7 @@ export function AppSidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { clearSelectedChat } = useSelectedChatStore();
 
   return (
     <div
@@ -35,7 +37,18 @@ export function AppSidebar() {
 
       <AnimatedSeparator isOpen={isOpen} />
 
-      <div className="h-50" />
+      <div className="flex flex-col gap-2 w-full">
+        <Button
+          onClick={clearSelectedChat}
+          variant="outline"
+          className={cn(
+            "transition-all duration-250",
+            isOpen ? "w-full" : "w-10 h-10 p-0"
+          )}
+        >
+          {isOpen ? "New Chat" : "+"}
+        </Button>
+      </div>
 
       <AnimatedSeparator isOpen={isOpen} />
 

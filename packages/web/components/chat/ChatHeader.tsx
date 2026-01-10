@@ -5,14 +5,17 @@ import { HiOutlineCpuChip } from "react-icons/hi2";
 type Props = {
   onClick: () => void;
   selectedModel: Model | null;
+  chatTitle?: string | null;
 };
 
-export function ChatHeader({ onClick, selectedModel }: Props) {
+export function ChatHeader({ onClick, selectedModel, chatTitle }: Props) {
   return (
     <>
       <header className="border-b border-foreground/10 p-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">AI Chat</h1>
+          <h1 className="text-xl font-semibold">
+            {chatTitle || "New Chat"}
+          </h1>
           <div className="flex items-center gap-2">
             <Button
               onClick={onClick}
