@@ -32,12 +32,6 @@ export function ChatUI() {
   // Selected chat state
   const { selectedChat } = useSelectedChatStore();
 
-  // Fetch chat messages if a chat is selected
-  const { data: chatMessages, isLoading: isLoadingMessages } = useChatMessages(
-    selectedChat?.id
-  );
-
-  // Chat state (with history from selected chat)
   const {
     messages,
     input,
@@ -45,14 +39,7 @@ export function ChatUI() {
     isStreaming,
     handleSubmit,
     cancelStreaming,
-  } = useChat(selectedModel, customInstructions, chatMessages);
-
-  // Handle chat switching - abort any ongoing streams when chat changes
-  useEffect(() => {
-    if (isStreaming) {
-      cancelStreaming();
-    }
-  }, [selectedChat?.id]);
+  } = useChat(selectedModel, customInstructions);
 
   return (
     <div className="flex flex-col h-screen relative">
@@ -77,7 +64,6 @@ export function ChatUI() {
         onClick={() => setIsModelSelectorOpen(true)}
         messages={messages}
         selectedModel={selectedModel}
-        isLoading={isLoadingMessages}
       />
 
       {/* Input */}

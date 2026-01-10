@@ -4,6 +4,8 @@ import { Message as MessageType } from "@ai-chat-app/db";
 import { ChatMessage } from "./ChatMessage";
 import { NoModalSelected } from "./ChatNoModelSelected";
 import { Spinner } from "../ui/spinner";
+import { useSelectedChatStore } from "@/lib/store/selectedChatStore";
+import { useChatMessages } from "@/lib/hooks/useChatMessages";
 
 type Props = {
   onClick: () => void;
@@ -23,18 +25,16 @@ const placeholderTexts = [
   "What's your question?",
 ];
 
-export function ChatMessages({
-  onClick,
-  messages,
-  selectedModel,
-  isLoading = false,
-}: Props) {
+export function ChatMessages({ onClick, messages, selectedModel }: Props) {
   const [currentText, setCurrentText] = useState("");
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * placeholderTexts.length);
     setCurrentText(placeholderTexts[randomIndex]);
   }, []);
+
+  const { selectedChat } = useSelectedChatStore();
+  const { isLoading } = useChatMessages(selectedChat?.id);
 
   return (
     <div className="flex-1 overflow-y-auto">

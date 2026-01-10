@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   callOpenRouterModel,
   streamTextFromResult,
@@ -7,25 +7,23 @@ import {
 
 import type { Model } from "@openrouter/sdk/models";
 import { Message } from "@ai-chat-app/db";
+import { useSelectedChatStore } from "../store/selectedChatStore";
+import { useChatMessages } from "./useChatMessages";
 
 export function useChat(
   selectedModel: Model | null,
-  customInstructions?: string,
-  initialMessages?: Message[]
+  customInstructions?: string
 ) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages ?? []);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentController, setCurrentController] =
     useState<AbortController | null>(null);
 
-  // Update messages when initialMessages changes (e.g., when switching chats)
-  useEffect(() => {
-    if (initialMessages) {
-      setMessages(initialMessages);
-      setInput(""); // Clear input when loading new chat
-    }
-  }, [initialMessages]);
+  const { selectedChat } = useSelectedChatStore();
+  const { data: chatMessages, isLoading: isLoadingMessages } = useChatMessages(
+    selectedChat?.id
+  );
 
   const handleMessageUpdates = (updater: (lastMessage: Message) => Message) => {
     setMessages((prev) => {
@@ -38,15 +36,20 @@ export function useChat(
     });
   };
 
+  const abortOldControllerAndSetNew = () => {
+    if (currentController) currentController.abort();
+    const controller = new AbortController();
+    setCurrentController(controller);
+
+    return controller;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!input.trim() || isStreaming || !selectedModel) return;
 
-    if (currentController) currentController.abort();
-
-    const controller = new AbortController();
-    setCurrentController(controller);
+    const controller = abortOldControllerAndSetNew();
 
     // Temporary client-side message (not yet persisted to DB)
     const userMessage: Message = {
@@ -139,7 +142,8 @@ export function useChat(
     }
   };
 
-  const resetChat = () => {
+  // Reset Chat
+  const resetChat = useCallback(() => {
     setMessages([]);
     setInput("");
     if (currentController) {
@@ -147,7 +151,32 @@ export function useChat(
     }
     setIsStreaming(false);
     setCurrentController(null);
-  };
+  }, [
+    setMessages,
+    setInput,
+    currentController,
+    setIsStreaming,
+    setCurrentController,
+  ]);
+
+  const cancelStreaming = useCallback(
+    () => currentController?.abort(),
+    [currentController]
+  );
+
+  // If Chat changes during streaming cancel the stream for now
+  useEffect(() => {
+    if (isStreaming) cancelStreaming();
+  }, [selectedChat?.id]);
+
+  // if selected chat ID changes and chat messages history is available
+  // then set the messages
+  useEffect(() => {
+    if (selectedChat && chatMessages) {
+      setMessages(chatMessages);
+      setInput("");
+    }
+  }, [selectedChat?.id, chatMessages]);
 
   return {
     messages,
@@ -155,7 +184,7 @@ export function useChat(
     setInput,
     isStreaming,
     handleSubmit,
-    cancelStreaming: () => currentController?.abort(),
+    cancelStreaming,
     resetChat,
   };
 }
