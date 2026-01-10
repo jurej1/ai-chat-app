@@ -1,24 +1,25 @@
-import { Model } from "@openrouter/sdk/models";
+"use client";
+
 import { Button } from "../ui/button";
 import { HiOutlineCpuChip } from "react-icons/hi2";
+import { useSelectedChatStore } from "@/lib/store/selectedChatStore";
+import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 
-type Props = {
-  onClick: () => void;
-  selectedModel: Model | null;
-  chatTitle?: string | null;
-};
+export function ChatHeader() {
+  const chatTitle = useSelectedChatStore((s) => s.selectedChat?.title);
 
-export function ChatHeader({ onClick, selectedModel, chatTitle }: Props) {
+  const selectedModel = useModelSelectionStore((s) => s.selectedModel);
+
+  const setDialogOpen = useModelSelectionStore((s) => s.setDialogOpen);
+
   return (
     <>
       <header className="border-b border-foreground/10 p-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">
-            {chatTitle || "New Chat"}
-          </h1>
+          <h1 className="text-xl font-semibold">{chatTitle || "New Chat"}</h1>
           <div className="flex items-center gap-2">
             <Button
-              onClick={onClick}
+              onClick={() => setDialogOpen(true)}
               className="flex items-center gap-2 px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 border border-foreground/10 rounded-lg transition-colors text-sm text-foreground"
             >
               <HiOutlineCpuChip />

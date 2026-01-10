@@ -6,11 +6,10 @@ import { NoModalSelected } from "./ChatNoModelSelected";
 import { Spinner } from "../ui/spinner";
 import { useSelectedChatStore } from "@/lib/store/selectedChatStore";
 import { useChatMessages } from "@/lib/hooks/useChatMessages";
+import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 
 type Props = {
-  onClick: () => void;
   messages: MessageType[];
-  selectedModel: Model | null;
   isLoading?: boolean;
 };
 
@@ -25,8 +24,10 @@ const placeholderTexts = [
   "What's your question?",
 ];
 
-export function ChatMessages({ onClick, messages, selectedModel }: Props) {
+export function ChatMessages({ messages }: Props) {
   const [currentText, setCurrentText] = useState("");
+
+  const selectedModel = useModelSelectionStore((s) => s.selectedModel);
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * placeholderTexts.length);
@@ -46,7 +47,7 @@ export function ChatMessages({ onClick, messages, selectedModel }: Props) {
       ) : messages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-foreground/50 gap-3">
           {!selectedModel ? (
-            <NoModalSelected onClick={onClick} />
+            <NoModalSelected />
           ) : (
             <p className="text-2xl">{currentText}</p>
           )}

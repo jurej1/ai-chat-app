@@ -1,11 +1,9 @@
 import { Model } from "@openrouter/sdk/models";
 import { TabsContent } from "../ui/tabs";
 import { ModelSelectorModelRow } from "./ModelSelectorModelRow";
+import { useModelsStore } from "@/lib/store/useModelsStore";
 
 type Props = {
-  error: string | null;
-  onRetry?: () => void;
-  isLoading: boolean;
   filteredDefaultModels: Model[];
   searchQuery: string;
   isModelSaved: (id: string) => boolean;
@@ -16,23 +14,20 @@ type Props = {
     modelId: string,
     modelName: string
   ) => void;
-  selectedModelId: string | null;
   activeTab: string;
 };
 
 export function ModelSelectorModelsTab({
-  error,
-  onRetry,
-  isLoading,
   filteredDefaultModels,
   searchQuery,
   focusedIndex,
   handleSelectModel,
   handleToggleSave,
-  selectedModelId,
   activeTab,
   isModelSaved,
 }: Props) {
+  const { isLoading, loadModels: onRetry, error } = useModelsStore();
+
   return (
     <TabsContent value="default">
       {error ? (
@@ -66,7 +61,6 @@ export function ModelSelectorModelsTab({
             handleToggleSave={(e) => handleToggleSave(e, model.id, model.name)}
             model={model}
             isSaved={isModelSaved(model.id)}
-            selectedModelId={selectedModelId}
             index={index}
             isActive={activeTab === "default"}
           />

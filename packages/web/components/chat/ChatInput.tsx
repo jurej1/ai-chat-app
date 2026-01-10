@@ -1,5 +1,4 @@
 import React, { memo, useRef, useEffect, useState } from "react";
-import { Model } from "@openrouter/sdk/models";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
@@ -10,12 +9,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
+
 type Props = {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   input: string;
   setInput: (val: string) => void;
   isStreaming: boolean;
-  selectedModel: Model | null;
   cancelStreaming: () => void;
   customInstructions: string;
   setCustomInstructions: (val: string) => void;
@@ -26,11 +26,12 @@ export const ChatInput = memo(function ChatInput({
   input,
   setInput,
   isStreaming,
-  selectedModel,
   cancelStreaming,
   customInstructions,
   setCustomInstructions,
 }: Props) {
+  const selectedModel = useModelSelectionStore((s) => s.selectedModel);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);

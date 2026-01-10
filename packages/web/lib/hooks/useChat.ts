@@ -5,15 +5,14 @@ import {
   getResponseFromResult,
 } from "@/lib/openrouter";
 
-import type { Model } from "@openrouter/sdk/models";
 import { Message } from "@ai-chat-app/db";
 import { useSelectedChatStore } from "../store/selectedChatStore";
 import { useChatMessages } from "./useChatMessages";
+import { useModelSelectionStore } from "../store/useModelSelectionStore";
 
-export function useChat(
-  selectedModel: Model | null,
-  customInstructions?: string
-) {
+export function useChat(customInstructions?: string) {
+  const selectedModel = useModelSelectionStore((s) => s.selectedModel);
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);

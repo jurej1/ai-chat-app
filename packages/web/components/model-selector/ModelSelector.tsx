@@ -11,28 +11,16 @@ import { ModelSelectorInput } from "./ModelSelectorInput";
 import { ModelSelectorModelsTab } from "./ModelSelectorModelsTab";
 import { ModelSelectorSavedModelsTab } from "./ModelSelectorSavedModelsTab";
 import { ModelSelectorFooter } from "./ModelSelectorFooter";
+import { useModelsStore } from "@/lib/store/useModelsStore";
+import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 
-interface ModelSelectorProps {
-  isOpen: boolean;
-  onClose: () => void;
-  models: Model[];
-  selectedModelId: string | null;
-  onSelectModel: (model: Model) => void;
-  isLoading?: boolean;
-  error?: string | null;
-  onRetry?: () => void;
-}
+export function ModelSelector() {
+  const { models } = useModelsStore();
 
-export function ModelSelector({
-  isOpen,
-  onClose,
-  models,
-  selectedModelId,
-  onSelectModel,
-  isLoading = false,
-  error = null,
-  onRetry,
-}: ModelSelectorProps) {
+  const isOpen = useModelSelectionStore((s) => s.dialogOpen);
+  const setDialogOpen = useModelSelectionStore((s) => s.setDialogOpen);
+  const setSelectedModel = useModelSelectionStore((s) => s.setSelectedModel);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [showFreeOnly, setShowFreeOnly] = useState(false);
@@ -40,12 +28,7 @@ export function ModelSelector({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const {
-    toggleSavedModel,
-    isSaved,
-    getSavedModelsData,
-    isLoaded: savedModelsLoaded,
-  } = useSavedModels();
+  const { toggleSavedModel, isSaved, getSavedModelsData } = useSavedModels();
 
   // Filter models based on search and free status (Default tab)
   const filteredDefaultModels = useMemo(() => {
@@ -129,7 +112,7 @@ export function ModelSelector({
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
-      onClose();
+      setDialogOpen(false);
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
       const maxIndex =
@@ -164,8 +147,8 @@ export function ModelSelector({
   }, [focusedIndex, isOpen]);
 
   const handleSelectModel = (model: Model) => {
-    onSelectModel(model);
-    onClose();
+    setSelectedModel(model);
+    setDialogOpen(false);
   };
 
   const handleToggleSave = (
@@ -178,7 +161,10 @@ export function ModelSelector({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && setDialogOpen(false)}
+    >
       <DialogContent
         showCloseButton={false}
         className="p-0 w-full max-w-3xl max-h-[80vh] flex flex-col"
@@ -206,15 +192,11 @@ export function ModelSelector({
 
           {/* Default Tab Content */}
           <ModelSelectorModelsTab
-            error={error}
-            onRetry={onRetry}
-            isLoading={isLoading}
             filteredDefaultModels={filteredDefaultModels}
             searchQuery={searchQuery}
             focusedIndex={focusedIndex}
             handleSelectModel={handleSelectModel}
             handleToggleSave={handleToggleSave}
-            selectedModelId={selectedModelId}
             activeTab={activeTab}
             isModelSaved={isSaved}
           />
@@ -225,7 +207,6 @@ export function ModelSelector({
             searchQuery={searchQuery}
             activeTab={activeTab}
             focusedIndex={focusedIndex}
-            selectedModelId={selectedModelId}
             isModelSaved={isSaved}
             handleSelectModel={handleSelectModel}
             handleToggleSave={handleToggleSave}

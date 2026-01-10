@@ -15,7 +15,6 @@ type Props = {
   searchQuery: string;
   activeTab: string;
   focusedIndex: number;
-  selectedModelId: string | null;
   isModelSaved: (id: string) => boolean;
   handleSelectModel: (model: Model) => void;
   handleToggleSave: (
@@ -30,7 +29,7 @@ export function ModelSelectorSavedModelsTab({
   searchQuery,
   activeTab,
   focusedIndex,
-  selectedModelId,
+
   isModelSaved,
   handleSelectModel,
   handleToggleSave,
@@ -103,7 +102,6 @@ export function ModelSelectorSavedModelsTab({
               index={index}
               isActive={activeTab === "saved"}
               focusedIndex={focusedIndex}
-              selectedModelId={selectedModelId}
               isSaved={isModelSaved(savedItem.id)}
               handleSelectModel={() => handleSelectModel(savedItem.fullModel!)}
               handleToggleSave={(e) =>

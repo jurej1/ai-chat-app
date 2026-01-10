@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useModelSelection } from "@/lib/hooks/useModelSelection";
+import { useState } from "react";
+import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 import { useChat } from "@/lib/hooks/useChat";
-import { useChatMessages } from "@/lib/hooks/useChatMessages";
-import { useSelectedChatStore } from "@/lib/store/selectedChatStore";
 import { ModelSelector } from "@/components/model-selector/ModelSelector";
-import { useModels } from "@/lib/hooks/useModels";
+import { useInitializeModels } from "@/lib/store/useModelsStore";
 import { ChatHeader } from "./ChatHeader";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
@@ -15,22 +13,9 @@ import { ChatUsageBox } from "./ChatUsageBox";
 export function ChatUI() {
   const [customInstructions, setCustomInstructions] = useState<string>("");
 
-  const {
-    selectedModel,
-    setSelectedModel,
-    setIsModelSelectorOpen,
-    isModelSelectorOpen,
-  } = useModelSelection();
+  const { selectedModel, setSelectedModel } = useModelSelectionStore();
 
-  const {
-    models,
-    isLoading: isLoadingModels,
-    error: modelsError,
-    loadModels,
-  } = useModels();
-
-  // Selected chat state
-  const { selectedChat } = useSelectedChatStore();
+  useInitializeModels();
 
   const {
     messages,
@@ -39,16 +24,12 @@ export function ChatUI() {
     isStreaming,
     handleSubmit,
     cancelStreaming,
-  } = useChat(selectedModel, customInstructions);
+  } = useChat(customInstructions);
 
   return (
     <div className="flex flex-col h-screen relative">
       {/* Header */}
-      <ChatHeader
-        onClick={() => setIsModelSelectorOpen(true)}
-        selectedModel={selectedModel}
-        chatTitle={selectedChat?.title ?? null}
-      />
+      <ChatHeader />
 
       {messages.some((m) => m.inputTokens || m.outputTokens) && (
         <div className="absolute left-1/2 -translate-x-1/2 top-20">
@@ -60,18 +41,13 @@ export function ChatUI() {
       )}
 
       {/* Messages */}
-      <ChatMessages
-        onClick={() => setIsModelSelectorOpen(true)}
-        messages={messages}
-        selectedModel={selectedModel}
-      />
+      <ChatMessages messages={messages} />
 
       {/* Input */}
       <ChatInput
         handleSubmit={handleSubmit}
         input={input}
         isStreaming={isStreaming}
-        selectedModel={selectedModel}
         setInput={setInput}
         cancelStreaming={cancelStreaming}
         customInstructions={customInstructions}
@@ -79,16 +55,7 @@ export function ChatUI() {
       />
 
       {/* Model Selector Modal */}
-      <ModelSelector
-        isOpen={isModelSelectorOpen}
-        onClose={() => setIsModelSelectorOpen(false)}
-        models={models}
-        selectedModelId={selectedModel?.id ?? null}
-        onSelectModel={setSelectedModel}
-        isLoading={isLoadingModels}
-        error={modelsError}
-        onRetry={loadModels}
-      />
+      <ModelSelector />
     </div>
   );
 }

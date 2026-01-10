@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useCallback } from "react";
 import type { Message } from "@ai-chat-app/db";
 
 import { Progress } from "../ui/progress";
+import { useChatUsage } from "@/lib/hooks/useChatUsage";
 
 interface ChatUsageBoxProps {
   messages: Message[];
@@ -9,33 +10,15 @@ interface ChatUsageBoxProps {
 }
 
 export function ChatUsageBox({ messages, contextLength }: ChatUsageBoxProps) {
-  // Calculate total usage across all messages
-  const totalUsage = useMemo(
-    () =>
-      messages.reduce(
-        (acc, message) => {
-          acc.inputTokens += message.inputTokens || 0;
-          acc.outputTokens += message.outputTokens || 0;
-          return acc;
-        },
-        { inputTokens: 0, outputTokens: 0 }
-      ),
-    [messages]
-  );
+  const { inputTokens, totalTokens, contextUsagePercentage, totalUsage } =
+    useChatUsage({ messages, contextLength });
 
-  const totalTokens = totalUsage.inputTokens + totalUsage.outputTokens;
-  const inputTokens = totalUsage.inputTokens;
-  const contextUsagePercentage = contextLength
-    ? Math.min((inputTokens / contextLength) * 100, 100)
-    : 0;
-
-  // Determine color based on usage
-  const getContextColor = (percentage: number) => {
+  const getContextColor = useCallback((percentage: number) => {
     if (percentage >= 90) return "bg-red-500";
     if (percentage >= 75) return "bg-orange-500";
     if (percentage >= 50) return "bg-yellow-500";
     return "bg-green-500";
-  };
+  }, []);
 
   return (
     <div className="flex flex-col gap-2 p-2.5 bg-linear-to-r from-gray-50 to-gray-100 shadow-sm rounded-lg border border-gray-200">

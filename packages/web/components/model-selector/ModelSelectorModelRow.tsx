@@ -1,3 +1,4 @@
+import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 import { Model } from "@openrouter/sdk/models";
 import { Star } from "lucide-react";
 
@@ -6,7 +7,6 @@ type Props = {
   index: number;
   isActive: boolean;
   focusedIndex: number;
-  selectedModelId: string | null;
   isSaved: boolean;
   handleSelectModel: () => void;
   handleToggleSave: (e: React.MouseEvent) => void;
@@ -17,11 +17,12 @@ export function ModelSelectorModelRow({
   index,
   isActive,
   focusedIndex,
-  selectedModelId,
   isSaved,
   handleSelectModel,
   handleToggleSave,
 }: Props) {
+  const selectedModelId = useModelSelectionStore((s) => s.selectedModel?.id);
+
   const isFocused = focusedIndex === index && isActive;
   const isSelected = selectedModelId === model.id;
 
