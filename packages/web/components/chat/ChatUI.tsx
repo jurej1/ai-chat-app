@@ -45,7 +45,7 @@ export function ChatUI() {
         selectedModel={selectedModel}
       />
 
-      {messages.some((m) => m.usage) && (
+      {messages.some((m) => m.inputTokens || m.outputTokens) && (
         <div className="absolute left-1/2 -translate-x-1/2 top-20">
           <ChatUsageBox
             messages={messages}

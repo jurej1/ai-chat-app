@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Model } from "@openrouter/sdk/models";
-import { Message as MessageType } from "@ai-chat-app/core";
+import { Message as MessageType } from "@ai-chat-app/db";
 import { ChatMessage } from "./ChatMessage";
 import { HiOutlineCpuChip } from "react-icons/hi2";
 import { Button } from "../ui/button";
@@ -42,11 +42,8 @@ export function ChatMessages({ onClick, messages, selectedModel }: Props) {
         </div>
       ) : (
         <div>
-          {messages.map((message, index) => (
-            <ChatMessage
-              key={`${message.timestamp}-${index}`}
-              message={message}
-            />
+          {messages.map((message) => (
+            <ChatMessage key={message.id} message={message} />
           ))}
         </div>
       )}

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Message } from "@ai-chat-app/core";
+import type { Message } from "@ai-chat-app/db";
 
 import { Progress } from "../ui/progress";
 
@@ -14,10 +14,8 @@ export function ChatUsageBox({ messages, contextLength }: ChatUsageBoxProps) {
     () =>
       messages.reduce(
         (acc, message) => {
-          if (message.usage) {
-            acc.inputTokens += message.usage.inputTokens || 0;
-            acc.outputTokens += message.usage.outputTokens || 0;
-          }
+          acc.inputTokens += message.inputTokens || 0;
+          acc.outputTokens += message.outputTokens || 0;
           return acc;
         },
         { inputTokens: 0, outputTokens: 0 }

@@ -4,22 +4,21 @@ import {
   streamTextFromResult,
   getResponseFromResult,
 } from "@/lib/openrouter";
-import type { Message as MessageType } from "@ai-chat-app/core";
+
 import type { Model } from "@openrouter/sdk/models";
+import { Message } from "@ai-chat-app/db";
 
 export function useChat(
   selectedModel: Model | null,
   customInstructions?: string
 ) {
-  const [messages, setMessages] = useState<MessageType[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentController, setCurrentController] =
     useState<AbortController | null>(null);
 
-  const handleMessageUpdates = (
-    updater: (lastMessage: MessageType) => MessageType
-  ) => {
+  const handleMessageUpdates = (updater: (lastMessage: Message) => Message) => {
     setMessages((prev) => {
       const updated = [...prev];
       const lastMessage = updated[updated.length - 1];
@@ -40,10 +39,15 @@ export function useChat(
     const controller = new AbortController();
     setCurrentController(controller);
 
-    const userMessage: MessageType = {
+    // Temporary client-side message (not yet persisted to DB)
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
       role: "user",
       content: input.trim(),
-      timestamp: Date.now(),
+      createdAt: new Date(),
+      chatId: "temp", // Will be set when saving to DB
+      inputTokens: null,
+      outputTokens: null,
     };
 
     // Add user message
@@ -52,10 +56,14 @@ export function useChat(
     setIsStreaming(true);
 
     // Create assistant message placeholder
-    const assistantMessage: MessageType = {
+    const assistantMessage: Message = {
+      id: crypto.randomUUID(),
       role: "assistant",
       content: "",
-      timestamp: Date.now(),
+      createdAt: new Date(),
+      chatId: "temp", // Will be set when saving to DB
+      inputTokens: null,
+      outputTokens: null,
     };
 
     setMessages((prev) => [...prev, assistantMessage]);
@@ -92,10 +100,8 @@ export function useChat(
         if (fullResponse.usage) {
           handleMessageUpdates((lastMessage) => ({
             ...lastMessage,
-            usage: {
-              inputTokens: fullResponse.usage!.inputTokens,
-              outputTokens: fullResponse.usage!.outputTokens,
-            },
+            inputTokens: fullResponse.usage!.inputTokens,
+            outputTokens: fullResponse.usage!.outputTokens,
           }));
         }
       }
