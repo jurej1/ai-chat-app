@@ -23,7 +23,7 @@ export function AppSidebar() {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       className={cn(
-        "bg-gray-200/30 h-screen flex py-3 px-3 transition-all duration-250 border-r flex-col items-start justify-between gap-2 flex-shrink-0",
+        "bg-gray-200/30 h-screen flex py-3 px-3 transition-all duration-250 border-r flex-col items-start justify-between gap-2 shrink-0",
         {
           "w-72": isOpen,
           "w-16": !isOpen,
