@@ -23,8 +23,8 @@ export const messagesTable = pgTable(
     chatId: uuid("chat_id")
       .notNull()
       .references(() => chatsTable.id, { onDelete: "cascade" }),
-    role: messageRolesEnum(),
-    content: text("content"),
+    role: messageRolesEnum().notNull(),
+    content: text("content").notNull(),
     inputTokens: integer("input_tokens"),
     outputTokens: integer("output_tokens"),
     createdAt: timestamp("created", { withTimezone: true })
