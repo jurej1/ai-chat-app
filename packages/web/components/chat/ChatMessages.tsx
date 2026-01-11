@@ -8,7 +8,6 @@ import { useSelectedChatStore } from "@/lib/store/selectedChatStore";
 import { useChatMessages } from "@/lib/hooks/useChatMessages";
 import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 import { motion, AnimatePresence } from "motion/react";
-import { TypingIndicator } from "./TypingIndicator";
 import { EmptyState } from "./EmptyState";
 
 type Props = {
@@ -20,9 +19,6 @@ export function ChatMessages({ messages, isStreaming }: Props) {
   const selectedModel = useModelSelectionStore((s) => s.selectedModel);
   const { selectedChat } = useSelectedChatStore();
   const { isLoading } = useChatMessages(selectedChat?.id);
-
-  const showTyping =
-    isStreaming && messages[messages.length - 1]?.content === "";
 
   return (
     <div className="flex-1 overflow-y-auto scroll-smooth">
@@ -64,16 +60,6 @@ export function ChatMessages({ messages, isStreaming }: Props) {
                 />
               </motion.div>
             ))}
-
-            {showTyping && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <TypingIndicator />
-              </motion.div>
-            )}
           </AnimatePresence>
         </div>
       )}
