@@ -11,27 +11,52 @@ import { cn } from "@/lib/utils";
 import { MdOutlineContentCopy } from "react-icons/md";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "motion/react";
 
 interface MessageProps {
   message: MessageType;
+  isStreaming?: boolean;
 }
 
-export function ChatMessage({ message }: MessageProps) {
+export function ChatMessage({ message, isStreaming }: MessageProps) {
   const isUser = message.role === "user";
+  const isError = message.content?.startsWith("Error:");
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div
-      className={cn("flex gap-4 p-4 items-start pr-12", {
-        "bg-transparent": isUser,
-        "bg-foreground/5": !isUser,
+    <motion.div
+      className={cn("flex gap-4 p-4 items-start pr-12 relative border-l-2", {
+        "bg-transparent border-transparent": isUser,
+        "bg-foreground/5 border-transparent": !isUser && !isError,
+        "bg-destructive/10 border-destructive": isError,
       })}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      whileHover={{
+        borderColor: isUser
+          ? "transparent"
+          : isError
+            ? "oklch(0.704 0.191 22.216)"
+            : "var(--cyber-cyan)",
+        boxShadow: isUser
+          ? "none"
+          : isError
+            ? "0 0 15px rgba(239, 68, 68, 0.3)"
+            : "0 0 15px rgba(0, 230, 255, 0.15)",
+      }}
+      transition={{ duration: 0.2 }}
     >
-      <Avatar role={message.role} />
+      <EnhancedAvatar role={message.role} isError={isError} />
 
       <div className="flex-1 overflow-hidden flex flex-col">
+        {isStreaming && !isUser && (
+          <motion.div
+            className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--cyber-cyan)] to-transparent"
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          />
+        )}
+
         <Markdown message={message} />
 
         <div className="flex items-center gap-2 mt-2">
@@ -41,12 +66,15 @@ export function ChatMessage({ message }: MessageProps) {
               outputTokens={message.outputTokens}
             />
           )}
-          {!isUser && !message.content?.startsWith("Error:") && (
-            <CopyButton isHover={isHovered} content={message.content || ""} />
+          {!isUser && !isError && (
+            <EnhancedCopyButton
+              isHover={isHovered}
+              content={message.content || ""}
+            />
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -110,43 +138,70 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
   );
 }
 
-function Avatar({ role }: { role: MessageRole }) {
+function EnhancedAvatar({
+  role,
+  isError,
+}: {
+  role: MessageRole;
+  isError?: boolean;
+}) {
   return (
-    <div className="shrink-0 w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center font-mono text-sm ">
-      {role === "user" ? "U" : "AI"}
-    </div>
+    <motion.div
+      className={cn(
+        "shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm border-2",
+        {
+          "bg-foreground/10 border-[var(--cyber-cyan)]": role === "user",
+          "bg-[var(--cyber-purple)]/20 border-[var(--cyber-magenta)]":
+            role === "assistant" && !isError,
+          "bg-destructive/20 border-destructive": isError,
+        }
+      )}
+      whileHover={{
+        scale: 1.1,
+        boxShadow:
+          role === "user" ? "var(--glow-cyan)" : "var(--glow-magenta)",
+      }}
+      transition={{ type: "spring", stiffness: 400 }}
+    >
+      {role === "user" ? "U" : isError ? "!" : "AI"}
+    </motion.div>
   );
 }
 
-function CopyButton({
+function EnhancedCopyButton({
   isHover,
   content,
 }: {
   isHover: boolean;
   content: string;
 }) {
-  const handleOnPress = useCallback(() => {
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(content);
-    toast.success("Text copied to clipboard");
+    toast.success("Copied to clipboard");
   }, [content]);
 
   return (
-    <div
-      className={cn("transition-opacity duration-100", {
-        "opacity-100": isHover,
-        "opacity-0": !isHover,
-      })}
-    >
-      <Button
-        className="cursor-pointer"
-        size="icon-sm"
-        variant="ghost"
-        onClick={handleOnPress}
-        disabled={!isHover}
-      >
-        <MdOutlineContentCopy />
-      </Button>
-    </div>
+    <AnimatePresence>
+      {isHover && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+        >
+          <Button size="icon-sm" variant="ghost" onClick={handleCopy} asChild>
+            <motion.button
+              whileHover={{
+                scale: 1.15,
+                boxShadow: "0 0 10px oklch(0.75 0.18 195 / 0.4)",
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <MdOutlineContentCopy />
+            </motion.button>
+          </Button>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

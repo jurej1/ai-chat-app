@@ -11,6 +11,9 @@ import {
 
 import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 import { Model } from "@openrouter/sdk/models";
+import { motion } from "motion/react";
+import { StreamingProgress } from "./StreamingProgress";
+import { cn } from "@/lib/utils";
 
 type Props = {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
@@ -56,7 +59,9 @@ export const ChatInput = memo(function ChatInput({
     setInput(e.target.value);
 
   return (
-    <div className="border-t border-foreground/10 p-4">
+    <div className="border-t border-[var(--cyber-cyan)]/20 p-4 glass-panel relative">
+      <StreamingProgress isStreaming={isStreaming} />
+
       <form ref={formRef} onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="flex gap-2 items-center">
           <div className="relative flex-1">
@@ -67,7 +72,16 @@ export const ChatInput = memo(function ChatInput({
               onKeyDown={handleOnKeyDown}
               placeholder="Type your message..."
               disabled={isStreaming}
-              className="pl-12 pr-4 py-3 bg-foreground/5 border border-foreground/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-foreground/20 disabled:opacity-50 resize-none overflow-y-auto max-h-75"
+              className={cn(
+                "pl-12 pr-4 py-3 bg-background/80 border rounded-lg resize-none",
+                "text-foreground placeholder:text-foreground/50",
+                "focus:outline-none focus:ring-2 focus:border-[var(--cyber-cyan)]",
+                "focus:shadow-[0_0_15px_rgba(0,230,255,0.3)]",
+                "disabled:opacity-50 transition-all duration-200",
+                isStreaming
+                  ? "border-foreground/10"
+                  : "border-[var(--cyber-cyan)]/30"
+              )}
               rows={1}
             />
             <button
@@ -80,9 +94,9 @@ export const ChatInput = memo(function ChatInput({
             </button>
           </div>
           {isStreaming ? (
-            <CancelButton cancelStreaming={cancelStreaming} />
+            <CancelButtonEnhanced cancelStreaming={cancelStreaming} />
           ) : (
-            <SubmitButton input={input} selectedModel={selectedModel} />
+            <SubmitButtonEnhanced input={input} selectedModel={selectedModel} />
           )}
         </div>
       </form>
@@ -132,33 +146,50 @@ const CustomInstructionsDialog = memo(
   }
 );
 
-const CancelButton = memo(
+const CancelButtonEnhanced = memo(
   ({ cancelStreaming }: { cancelStreaming: () => void }) => (
-    <Button
-      type="button"
-      onClick={cancelStreaming}
-      className="px-6 py-3 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
-    >
-      Cancel
-    </Button>
+    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+      <Button
+        type="button"
+        onClick={cancelStreaming}
+        className="px-6 py-3 bg-destructive/80 rounded-lg font-medium hover:bg-destructive hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] transition-all"
+      >
+        Cancel
+      </Button>
+    </motion.div>
   )
 );
 
-const SubmitButton = memo(
+const SubmitButtonEnhanced = memo(
   ({
     input,
     selectedModel,
   }: {
     input: string;
     selectedModel: Model | null;
-  }) => (
-    <Button
-      type="submit"
-      disabled={!input.trim() || !selectedModel}
-      className="px-6 py-3 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      title={!selectedModel ? "Please select a model first" : undefined}
-    >
-      Send
-    </Button>
-  )
+  }) => {
+    const isDisabled = !input.trim() || !selectedModel;
+
+    return (
+      <motion.div
+        whileHover={{ scale: isDisabled ? 1 : 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Button
+          type="submit"
+          disabled={isDisabled}
+          className={cn(
+            "px-6 py-3 rounded-lg font-medium transition-all duration-200",
+            !isDisabled &&
+              "bg-gradient-to-r from-[var(--cyber-cyan)] to-[var(--cyber-magenta)]",
+            !isDisabled && "hover:shadow-[0_0_20px_rgba(0,230,255,0.5)]",
+            isDisabled && "bg-foreground/20 cursor-not-allowed"
+          )}
+          title={!selectedModel ? "Please select a model first" : undefined}
+        >
+          Send
+        </Button>
+      </motion.div>
+    );
+  }
 );

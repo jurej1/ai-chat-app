@@ -9,6 +9,9 @@ import { Message } from "@ai-chat-app/db";
 import { useSelectedChatStore } from "../store/selectedChatStore";
 import { useChatMessages } from "./useChatMessages";
 import { useModelSelectionStore } from "../store/useModelSelectionStore";
+import { useCreateMessage } from "./useCreateMessage";
+import { toast } from "sonner";
+import { ChatErrorFactory, type ChatError } from "@/lib/errors/chat-errors";
 
 export function useChat() {
   const selectedModel = useModelSelectionStore((s) => s.selectedModel);
@@ -21,10 +24,12 @@ export function useChat() {
   const [currentController, setCurrentController] =
     useState<AbortController | null>(null);
 
+  const [error, setError] = useState<ChatError | null>(null);
+
   const { selectedChat } = useSelectedChatStore();
-  const { data: chatMessages, isLoading: isLoadingMessages } = useChatMessages(
-    selectedChat?.id
-  );
+  const { data: chatMessages } = useChatMessages(selectedChat?.id);
+
+  const { mutateAsync: createMessage } = useCreateMessage();
 
   const handleMessageUpdates = (updater: (lastMessage: Message) => Message) => {
     setMessages((prev) => {
@@ -44,6 +49,55 @@ export function useChat() {
 
     return controller;
   };
+
+  const saveMessagesToDb = async (
+    userMsg: Message,
+    assistantMsg: Message,
+    chatId: string
+  ) => {
+    try {
+      await Promise.all([
+        createMessage({
+          role: userMsg.role,
+          content: userMsg.content,
+          chatId,
+          inputTokens: userMsg.inputTokens,
+          outputTokens: userMsg.outputTokens,
+        }),
+        createMessage({
+          role: assistantMsg.role,
+          content: assistantMsg.content,
+          chatId,
+          inputTokens: assistantMsg.inputTokens,
+          outputTokens: assistantMsg.outputTokens,
+        }),
+      ]);
+    } catch (error) {
+      console.error("Failed to persist messages:", error);
+      toast.error("Failed to save messages to database", {
+        description:
+          "Your messages are temporarily stored in memory. Please try again later.",
+      });
+    }
+  };
+
+  const clearError = useCallback(() => setError(null), []);
+
+  const handleRetry = useCallback(async () => {
+    if (!error || !error.retryable) return;
+    clearError();
+
+    const lastUserMessage = messages.filter((m) => m.role === "user").pop();
+    if (!lastUserMessage) return;
+
+    setInput(lastUserMessage.content);
+    setMessages((prev) => prev.filter((m) => !m.content?.startsWith("Error:")));
+
+    setTimeout(() => {
+      const form = document.querySelector("form");
+      form?.dispatchEvent(new Event("submit", { bubbles: true }));
+    }, 0);
+  }, [error, messages, clearError, setInput]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +172,20 @@ export function useChat() {
           }));
         }
       }
+
+      // Save messages to DB if chat is selected
+      if (selectedChat?.id) {
+        // Extract final messages and save to DB
+        setMessages((prev) => {
+          const userMsg = prev[prev.length - 2];
+          const assistantMsg = prev[prev.length - 1];
+
+          // Fire-and-forget DB save with error handling
+          saveMessagesToDb(userMsg, assistantMsg, selectedChat.id);
+
+          return prev;
+        });
+      }
     } catch (error) {
       const isAbortError =
         error instanceof DOMException && error.name === "AbortError";
@@ -130,13 +198,23 @@ export function useChat() {
 
       console.error("Error streaming response:", error);
 
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
+      const chatError = ChatErrorFactory.fromException(error);
+      setError(chatError);
 
       handleMessageUpdates((lastMessage) => ({
         ...lastMessage,
-        content: `Error: ${errorMessage}`,
+        content: `Error: ${chatError.message}`,
       }));
+
+      toast.error(chatError.message, {
+        description: chatError.details,
+        action: chatError.retryable
+          ? {
+              label: "Retry",
+              onClick: handleRetry,
+            }
+          : undefined,
+      });
     } finally {
       setIsStreaming(false);
       setCurrentController(null);
@@ -189,5 +267,8 @@ export function useChat() {
     resetChat,
     customInstructions,
     setCustomInstructions,
+    error,
+    clearError,
+    handleRetry,
   };
 }

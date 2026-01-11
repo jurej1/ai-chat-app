@@ -174,6 +174,23 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Cyberpunk Colors */
+  --cyber-cyan: oklch(0.75 0.18 195);
+  --cyber-magenta: oklch(0.65 0.25 330);
+  --cyber-purple: oklch(0.55 0.22 290);
+  --cyber-blue: oklch(0.50 0.20 240);
+  --cyber-pink: oklch(0.70 0.20 350);
+
+  /* Background Layers */
+  --cyber-bg-deep: oklch(0.10 0.01 240);
+  --cyber-bg-surface: oklch(0.15 0.02 240);
+  --cyber-bg-elevated: oklch(0.20 0.02 240);
+
+  /* Glow Effects */
+  --glow-cyan: 0 0 20px oklch(0.75 0.18 195 / 0.6);
+  --glow-magenta: 0 0 20px oklch(0.65 0.25 330 / 0.6);
+  --glow-purple: 0 0 15px oklch(0.55 0.22 290 / 0.5);
 }
 
 @layer base {
@@ -183,4 +200,62 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Cyberpunk Utility Classes */
+.cyber-glow-cyan {
+  box-shadow: var(--glow-cyan);
+}
+
+.cyber-glow-magenta {
+  box-shadow: var(--glow-magenta);
+}
+
+.cyber-glow-purple {
+  box-shadow: var(--glow-purple);
+}
+
+.cyber-text-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--cyber-cyan),
+    var(--cyber-magenta)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-panel {
+  background: oklch(0.20 0.02 240 / 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid oklch(0.75 0.18 195 / 0.2);
+}
+
+/* Cyberpunk Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
+.animate-scanline {
+  animation: scanline 8s linear infinite;
 }

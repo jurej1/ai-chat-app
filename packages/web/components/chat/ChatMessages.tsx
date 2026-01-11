@@ -7,10 +7,13 @@ import { Spinner } from "../ui/spinner";
 import { useSelectedChatStore } from "@/lib/store/selectedChatStore";
 import { useChatMessages } from "@/lib/hooks/useChatMessages";
 import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
+import { motion, AnimatePresence } from "motion/react";
+import { TypingIndicator } from "./TypingIndicator";
+import { EmptyState } from "./EmptyState";
 
 type Props = {
   messages: MessageType[];
-  isLoading?: boolean;
+  isStreaming: boolean;
 };
 
 const placeholderTexts = [
@@ -24,39 +27,65 @@ const placeholderTexts = [
   "What's your question?",
 ];
 
-export function ChatMessages({ messages }: Props) {
-  const [currentText, setCurrentText] = useState("");
-
+export function ChatMessages({ messages, isStreaming }: Props) {
   const selectedModel = useModelSelectionStore((s) => s.selectedModel);
-
-  useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * placeholderTexts.length);
-    setCurrentText(placeholderTexts[randomIndex]);
-  }, []);
-
   const { selectedChat } = useSelectedChatStore();
   const { isLoading } = useChatMessages(selectedChat?.id);
 
+  const showTyping =
+    isStreaming && messages[messages.length - 1]?.content === "";
+
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto scroll-smooth">
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center h-full text-foreground/50 gap-3">
-          <Spinner />
-          <p className="text-sm">Loading chat history...</p>
+        <div className="flex flex-col items-center justify-center h-full gap-3">
+          <Spinner className="w-8 h-8 text-[var(--cyber-cyan)]" />
+          <motion.p
+            className="text-sm text-foreground/50"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            Loading chat history...
+          </motion.p>
         </div>
       ) : messages.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-full text-foreground/50 gap-3">
-          {!selectedModel ? (
-            <NoModalSelected />
-          ) : (
-            <p className="text-2xl">{currentText}</p>
-          )}
-        </div>
+        !selectedModel ? (
+          <NoModalSelected />
+        ) : (
+          <EmptyState />
+        )
       ) : (
         <div>
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
+          <AnimatePresence initial={false}>
+            {messages.map((message, index) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: index * 0.05,
+                  type: "spring",
+                  damping: 25,
+                  stiffness: 200,
+                }}
+              >
+                <ChatMessage
+                  message={message}
+                  isStreaming={isStreaming && index === messages.length - 1}
+                />
+              </motion.div>
+            ))}
+
+            {showTyping && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <TypingIndicator />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </div>
