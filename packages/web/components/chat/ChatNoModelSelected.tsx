@@ -6,7 +6,7 @@ export function NoModalSelected() {
   const setDialogOpen = useModelSelectionStore((s) => s.setDialogOpen);
 
   return (
-    <>
+    <div className="flex flex-col items-center justify-center h-full gap-3">
       <HiOutlineCpuChip className="object-fill w-14 h-14" />
       <p>Please select a model to start chatting</p>
       <Button
@@ -15,6 +15,6 @@ export function NoModalSelected() {
       >
         Select Model
       </Button>
-    </>
+    </div>
   );
 }

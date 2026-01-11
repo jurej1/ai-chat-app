@@ -16,17 +16,6 @@ type Props = {
   isStreaming: boolean;
 };
 
-const placeholderTexts = [
-  "Start a conversation...",
-  "Ready when you are.",
-  "Where should we begin?",
-  "What's on your mind today?",
-  "Let's chat!",
-  "How can I help you?",
-  "Tell me something interesting.",
-  "What's your question?",
-];
-
 export function ChatMessages({ messages, isStreaming }: Props) {
   const selectedModel = useModelSelectionStore((s) => s.selectedModel);
   const { selectedChat } = useSelectedChatStore();

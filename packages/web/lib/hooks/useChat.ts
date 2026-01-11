@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   callOpenRouterModel,
   streamTextFromResult,
@@ -105,6 +105,7 @@ export function useChat() {
     if (!input.trim() || isStreaming || !selectedModel) return;
 
     const controller = abortOldControllerAndSetNew();
+    let messagesSaved = false;
 
     // Temporary client-side message (not yet persisted to DB)
     const userMessage: Message = {
@@ -158,24 +159,20 @@ export function useChat() {
         }));
       }
 
-      // Get the full response
+      // Get the full response and update assistant message with usage
       const fullResponse = await getResponseFromResult(modelResult);
-      if (fullResponse) {
-        console.log("full response", fullResponse);
-
-        // Attach usage to the assistant message
-        if (fullResponse.usage) {
-          handleMessageUpdates((lastMessage) => ({
-            ...lastMessage,
-            inputTokens: fullResponse.usage!.inputTokens,
-            outputTokens: fullResponse.usage!.outputTokens,
-          }));
-        }
+      if (fullResponse?.usage) {
+        handleMessageUpdates((lastMessage) => ({
+          ...lastMessage,
+          inputTokens: fullResponse.usage!.inputTokens,
+          outputTokens: fullResponse.usage!.outputTokens,
+        }));
       }
 
       // Save messages to DB if chat is selected
-      if (selectedChat?.id) {
-        // Extract final messages and save to DB
+      if (selectedChat?.id && !messagesSaved) {
+        messagesSaved = true;
+        // Extract final messages from current state and save to DB
         setMessages((prev) => {
           const userMsg = prev[prev.length - 2];
           const assistantMsg = prev[prev.length - 1];
