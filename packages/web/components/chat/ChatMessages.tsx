@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { Model } from "@openrouter/sdk/models";
 import { Message as MessageType } from "@ai-chat-app/db";
 import { ChatMessage } from "./ChatMessage";
 import { NoModalSelected } from "./ChatNoModelSelected";

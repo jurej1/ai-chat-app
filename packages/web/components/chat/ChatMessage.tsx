@@ -36,13 +36,13 @@ export function ChatMessage({ message, isStreaming }: MessageProps) {
         borderColor: isUser
           ? "transparent"
           : isError
-            ? "oklch(0.704 0.191 22.216)"
-            : "var(--cyber-cyan)",
+          ? "oklch(0.704 0.191 22.216)"
+          : "var(--cyber-cyan)",
         boxShadow: isUser
           ? "none"
           : isError
-            ? "0 0 15px rgba(239, 68, 68, 0.3)"
-            : "0 0 15px rgba(0, 230, 255, 0.15)",
+          ? "0 0 15px rgba(239, 68, 68, 0.3)"
+          : "0 0 15px rgba(0, 230, 255, 0.15)",
       }}
       transition={{ duration: 0.2 }}
     >
@@ -158,8 +158,7 @@ function EnhancedAvatar({
       )}
       whileHover={{
         scale: 1.1,
-        boxShadow:
-          role === "user" ? "var(--glow-cyan)" : "var(--glow-magenta)",
+        boxShadow: role === "user" ? "var(--glow-cyan)" : "var(--glow-magenta)",
       }}
       transition={{ type: "spring", stiffness: 400 }}
     >

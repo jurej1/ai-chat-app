@@ -161,27 +161,23 @@ export function useChat() {
 
       // Get the full response and update assistant message with usage
       const fullResponse = await getResponseFromResult(modelResult);
-      if (fullResponse?.usage) {
+      if (fullResponse?.usage && selectedChat) {
+        const inputTokens = fullResponse.usage!.inputTokens;
+        const outputTokens = fullResponse.usage!.outputTokens;
+
         handleMessageUpdates((lastMessage) => ({
           ...lastMessage,
-          inputTokens: fullResponse.usage!.inputTokens,
-          outputTokens: fullResponse.usage!.outputTokens,
+          inputTokens,
+          outputTokens,
         }));
-      }
 
-      // Save messages to DB if chat is selected
-      if (selectedChat?.id && !messagesSaved) {
-        messagesSaved = true;
-        // Extract final messages from current state and save to DB
-        setMessages((prev) => {
-          const userMsg = prev[prev.length - 2];
-          const assistantMsg = prev[prev.length - 1];
-
-          // Fire-and-forget DB save with error handling
-          saveMessagesToDb(userMsg, assistantMsg, selectedChat.id);
-
-          return prev;
-        });
+        const userMsg = messages[messages.length - 2];
+        const assistantMsg = messages[messages.length - 1];
+        saveMessagesToDb(
+          { ...userMsg, inputTokens, outputTokens },
+          { ...assistantMsg, inputTokens, outputTokens },
+          selectedChat.id
+        );
       }
     } catch (error) {
       const isAbortError =
