@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 import { useChat } from "@/lib/hooks/useChat";
 import { ModelSelector } from "@/components/model-selector/ModelSelector";
 import { useInitializeModels } from "@/lib/store/useModelsStore";
@@ -11,10 +9,6 @@ import { ChatInput } from "./ChatInput";
 import { ChatUsageBox } from "./ChatUsageBox";
 
 export function ChatUI() {
-  const [customInstructions, setCustomInstructions] = useState<string>("");
-
-  const { selectedModel, setSelectedModel } = useModelSelectionStore();
-
   useInitializeModels();
 
   const {
@@ -24,7 +18,9 @@ export function ChatUI() {
     isStreaming,
     handleSubmit,
     cancelStreaming,
-  } = useChat(customInstructions);
+    setCustomInstructions,
+    customInstructions,
+  } = useChat();
 
   return (
     <div className="flex flex-col h-screen relative">
@@ -33,10 +29,7 @@ export function ChatUI() {
 
       {messages.some((m) => m.inputTokens || m.outputTokens) && (
         <div className="absolute left-1/2 -translate-x-1/2 top-20">
-          <ChatUsageBox
-            messages={messages}
-            contextLength={selectedModel?.contextLength}
-          />
+          <ChatUsageBox messages={messages} />
         </div>
       )}
 

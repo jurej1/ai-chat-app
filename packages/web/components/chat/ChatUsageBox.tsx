@@ -3,15 +3,19 @@ import type { Message } from "@ai-chat-app/db";
 
 import { Progress } from "../ui/progress";
 import { useChatUsage } from "@/lib/hooks/useChatUsage";
+import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
 
 interface ChatUsageBoxProps {
   messages: Message[];
-  contextLength?: number | null;
 }
 
-export function ChatUsageBox({ messages, contextLength }: ChatUsageBoxProps) {
+export function ChatUsageBox({ messages }: ChatUsageBoxProps) {
   const { inputTokens, totalTokens, contextUsagePercentage, totalUsage } =
-    useChatUsage({ messages, contextLength });
+    useChatUsage({ messages });
+
+  const contextLength = useModelSelectionStore(
+    (s) => s.selectedModel?.contextLength
+  );
 
   const getContextColor = useCallback((percentage: number) => {
     if (percentage >= 90) return "bg-red-500";

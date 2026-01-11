@@ -10,11 +10,13 @@ import { useSelectedChatStore } from "../store/selectedChatStore";
 import { useChatMessages } from "./useChatMessages";
 import { useModelSelectionStore } from "../store/useModelSelectionStore";
 
-export function useChat(customInstructions?: string) {
+export function useChat() {
   const selectedModel = useModelSelectionStore((s) => s.selectedModel);
 
+  const [customInstructions, setCustomInstructions] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentController, setCurrentController] =
     useState<AbortController | null>(null);
@@ -185,5 +187,7 @@ export function useChat(customInstructions?: string) {
     handleSubmit,
     cancelStreaming,
     resetChat,
+    customInstructions,
+    setCustomInstructions,
   };
 }

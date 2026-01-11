@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { useModelSelectionStore } from "@/lib/store/useModelSelectionStore";
+import { Model } from "@openrouter/sdk/models";
 
 type Props = {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
@@ -54,27 +55,6 @@ export const ChatInput = memo(function ChatInput({
   const handleOnChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
     setInput(e.target.value);
 
-  const CancelButton = () => (
-    <Button
-      type="button"
-      onClick={cancelStreaming}
-      className="px-6 py-3 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
-    >
-      Cancel
-    </Button>
-  );
-
-  const SubmitButton = () => (
-    <Button
-      type="submit"
-      disabled={!input.trim() || !selectedModel}
-      className="px-6 py-3 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      title={!selectedModel ? "Please select a model first" : undefined}
-    >
-      Send
-    </Button>
-  );
-
   return (
     <div className="border-t border-foreground/10 p-4">
       <form ref={formRef} onSubmit={handleSubmit} className="max-w-4xl mx-auto">
@@ -99,9 +79,36 @@ export const ChatInput = memo(function ChatInput({
               <Plus size={16} />
             </button>
           </div>
-          {isStreaming ? <CancelButton /> : <SubmitButton />}
+          {isStreaming ? (
+            <CancelButton cancelStreaming={cancelStreaming} />
+          ) : (
+            <SubmitButton input={input} selectedModel={selectedModel} />
+          )}
         </div>
       </form>
+      <CustomInstructionsDialog
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        customInstructions={customInstructions}
+        setCustomInstructions={setCustomInstructions}
+      />
+    </div>
+  );
+});
+
+const CustomInstructionsDialog = memo(
+  ({
+    isDialogOpen,
+    setIsDialogOpen,
+    customInstructions,
+    setCustomInstructions,
+  }: {
+    isDialogOpen: boolean;
+    setIsDialogOpen: (open: boolean) => void;
+    customInstructions: string;
+    setCustomInstructions: (val: string) => void;
+  }) => {
+    return (
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -121,6 +128,37 @@ export const ChatInput = memo(function ChatInput({
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-});
+    );
+  }
+);
+
+const CancelButton = memo(
+  ({ cancelStreaming }: { cancelStreaming: () => void }) => (
+    <Button
+      type="button"
+      onClick={cancelStreaming}
+      className="px-6 py-3 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
+    >
+      Cancel
+    </Button>
+  )
+);
+
+const SubmitButton = memo(
+  ({
+    input,
+    selectedModel,
+  }: {
+    input: string;
+    selectedModel: Model | null;
+  }) => (
+    <Button
+      type="submit"
+      disabled={!input.trim() || !selectedModel}
+      className="px-6 py-3 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      title={!selectedModel ? "Please select a model first" : undefined}
+    >
+      Send
+    </Button>
+  )
+);

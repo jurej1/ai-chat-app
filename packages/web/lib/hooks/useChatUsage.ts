@@ -1,12 +1,16 @@
 import { Message } from "@ai-chat-app/db";
 import { useMemo } from "react";
+import { useModelSelectionStore } from "../store/useModelSelectionStore";
 
 type Props = {
   messages: Message[];
-  contextLength?: number | null;
 };
 
-export const useChatUsage = ({ messages, contextLength }: Props) => {
+export const useChatUsage = ({ messages }: Props) => {
+  const contextLength = useModelSelectionStore(
+    (s) => s.selectedModel?.contextLength
+  );
+
   const totalUsage = useMemo(
     () =>
       messages.reduce(
@@ -28,9 +32,7 @@ export const useChatUsage = ({ messages, contextLength }: Props) => {
 
   const contextUsagePercentage = useMemo(
     () =>
-      contextLength
-        ? Math.min((inputTokens / contextLength) * 100, 100)
-        : 0,
+      contextLength ? Math.min((inputTokens / contextLength) * 100, 100) : 0,
     [contextLength, inputTokens]
   );
 
